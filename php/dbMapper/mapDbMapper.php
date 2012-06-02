@@ -30,7 +30,7 @@ class MapDbMapper extends BaseDbMapper {
 	function getMainMenu($lvl=1,$parentId=0) {
 		$menu = array();
 		$sql = "
-		SELECT *
+		SELECT id, parentId, name, iconPath
 		FROM mode
 		WHERE active=1
 		AND lvl=".$lvl."

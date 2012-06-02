@@ -18,7 +18,11 @@
 <body>
 	<div id="header"></div>
 	<div id="content">
-		<div id="mainMenu"></div>
+		<div>
+			<div id="button-menu-main" class="tab l0 open"></div>
+			<div id="menu-main" class="mainMenu border">
+			</div>
+		</div>
 		<div id="map"></div>
 		<div id="infoBox"></div>
 	</div>
