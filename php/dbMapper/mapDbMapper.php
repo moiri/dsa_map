@@ -7,6 +7,7 @@ require_once('baseDbMapper.php');
  * @author moiri
  */
 class MapDbMapper extends BaseDbMapper {
+	var $debug = true;
 	/**
 	 * Open connection to mysql database
 	 *
@@ -27,7 +28,7 @@ class MapDbMapper extends BaseDbMapper {
 	 * @return an array with with all menu items of the specified id and parentId and all their
 	 * children menu items. This array can be converted into a json string (use json_encode())
 	 */
-	function getMainMenu($lvl=1,$parentId=0) {
+	function getMainMenu ($lvl=1,$parentId=0) {
 		$menu = array();
 		$sql = "
 		SELECT id, parentId, name, iconPath
@@ -53,6 +54,70 @@ class MapDbMapper extends BaseDbMapper {
 			}
 		}
 		return $menu;
+	}
+	
+	/**
+	 * load mode entries from db
+	 * 
+	 * @param array $mode:	complete mode information (use selectByUid('mode', id))
+	 * @return array: an array with with all mode items of the specified mode.
+	 * This array can be converted into a json string (use json_encode())
+	 */
+	function getMainMenuEntries ($mode) {
+		$retValue = false;
+		$table = mysql_real_escape_string($mode['tableName']);
+		$catSel = "";
+		$catJoin = "";
+		if($mode['category'] != 0) {
+			// prepare query if category is avaliable
+			$catSel = ", c.name AS category";
+			$catJoin = " LEFT JOIN category AS c ON c.id = t.id_category";
+		}
+		$display = "";
+		if($mode['display'] != 0) {
+			// do not select entries that must not be displayed 
+			$display = " AND display = '1'";
+		}
+		$sepMode = "";
+		if($mode['sepMode'] != 0) {
+			// prepare query if multiple modes are in one table
+			$sepMode = sprintf(" AND t.id_mode = '%d'",
+					mysql_real_escape_string($mode['id']));
+		}
+		$sql = sprintf("SELECT t.id AS id, t.name AS name%s FROM %s AS t%s WHERE 1%s%s ORDER BY t.name;",
+				$catSel,
+				$table,
+				$catJoin,
+				$display,
+				$sepMode);
+		
+		// set error string
+		if($this->debug) $errorQuery = "Error: Invalid mySQL query: ".$sql;
+		else $errorQuery = "Error: Invalid mySQL query!";
+		// execute query
+		$result = mysql_query($sql, $this->handle)
+		or die ($errorQuery);
+		$num_rows = mysql_num_rows($result);
+		if($num_rows >= 1) {
+			$retValue = array();
+			$retValue['main'] = array();
+			while($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
+				if (isset($row['category'])) {
+					if (!isset($retValue[$row['category']])) {
+						$retValue[$row['category']] = array();
+					}
+					array_push($retValue[$row['category']], $row);
+				}
+				else {
+					array_push($retValue['main'], $row);
+				}
+			}
+		}
+		else {
+			// no entry
+			$retValue = false;
+		}
+		return $retValue;
 	}
 }
 
