@@ -77,3 +77,28 @@
 	padding:10px 0;
 	position:absolute;
 }
+
+.categoryEye {
+	float:left;
+	width:15px;
+	height:15px;
+	margin-right:5px;
+	background-image: url("../img/icon/eye_shut.png");
+}
+
+.categoryEye.open {
+	background-image: url("../img/icon/eye_open.png");
+}
+
+.categoryTitle {
+	cursor:pointer;
+}
+
+.categoryTitleText {
+	font-weight:bold;
+}
+
+.category {
+	display:none;
+	margin-left:10px;
+}

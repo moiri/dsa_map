@@ -3,7 +3,7 @@ require_once('baseDbMapper.php');
 
 /**
  * Class to handle the communication with the dsa_map-DB
- * 
+ *
  * @author moiri
  */
 class MapDbMapper extends BaseDbMapper {
@@ -19,7 +19,7 @@ class MapDbMapper extends BaseDbMapper {
 	function MapDbMapper($server="",$database="",$login="",$password=""){
 		$this->BaseDbMapper($server,$database,$login,$password);
 	}
-	
+
 	/**
 	 * load mode information from server and build menu structure
 	 *
@@ -55,27 +55,30 @@ class MapDbMapper extends BaseDbMapper {
 		}
 		return $menu;
 	}
-	
+
 	/**
 	 * load mode entries from db
-	 * 
+	 *
 	 * @param array $mode:	complete mode information (use selectByUid('mode', id))
 	 * @return array: an array with with all mode items of the specified mode.
 	 * This array can be converted into a json string (use json_encode())
 	 */
 	function getMainMenuEntries ($mode) {
 		$retValue = false;
+		if ($mode['freeMode'] == 1) {
+			return false;
+		}
 		$table = mysql_real_escape_string($mode['tableName']);
 		$catSel = "";
 		$catJoin = "";
 		if($mode['category'] != 0) {
 			// prepare query if category is avaliable
-			$catSel = ", c.name AS category";
+			$catSel = ", c.name AS category, c.id AS c_id";
 			$catJoin = " LEFT JOIN category AS c ON c.id = t.id_category";
 		}
 		$display = "";
 		if($mode['display'] != 0) {
-			// do not select entries that must not be displayed 
+			// do not select entries that must not be displayed
 			$display = " AND display = '1'";
 		}
 		$sepMode = "";
@@ -90,7 +93,7 @@ class MapDbMapper extends BaseDbMapper {
 				$catJoin,
 				$display,
 				$sepMode);
-		
+
 		// set error string
 		if($this->debug) $errorQuery = "Error: Invalid mySQL query: ".$sql;
 		else $errorQuery = "Error: Invalid mySQL query!";
@@ -100,16 +103,16 @@ class MapDbMapper extends BaseDbMapper {
 		$num_rows = mysql_num_rows($result);
 		if($num_rows >= 1) {
 			$retValue = array();
-			$retValue['main'] = array();
+			$retValue['main'] = array('name' => 'main', 'id' => 0, 'entries' => array());
 			while($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
 				if (isset($row['category'])) {
 					if (!isset($retValue[$row['category']])) {
-						$retValue[$row['category']] = array();
+						$retValue[$row['category']] = array('name' => $row['category'], 'id' => $row['c_id'], 'entries' => array());
 					}
-					array_push($retValue[$row['category']], $row);
+					array_push($retValue[$row['category']]['entries'], $row);
 				}
 				else {
-					array_push($retValue['main'], $row);
+					array_push($retValue['main']['entries'], $row);
 				}
 			}
 		}

@@ -17,7 +17,9 @@ if (isset($_GET['tab'])) {
 }
 else if (isset($_GET['content'])) {
 	$res = $map->selectByUid('mode', $_SESSION['mode']);
-	$res = $map->getMainMenuEntries($res);
+	if ($res) {
+		$res = $map->getMainMenuEntries($res);
+	}
 }
 if ($res) {
 	print json_encode($res);

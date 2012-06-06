@@ -6,6 +6,29 @@ function Menu() {
 	me.mode;
 
 	/**
+	 * bind click elemnt to eye hiding and showing the menu
+	 */
+	Menu.prototype.bindEye = function () {
+		// bind show and hide clicks
+		$('[id^="button-menu"]').unbind('click');
+		$('[id^="button-menu"]').bind('click', function () {
+			var idElem;
+			idElem = $(this).attr('id').split('-');
+			idElem.shift(); // remove descripter (keep only ids)
+			if ($(this).hasClass('open')) {
+				$('#' + idElem.join('-')).fadeOut();
+				$(this).removeClass('open');
+				$(this).addClass('close');
+			}
+			else {
+				$('#' + idElem.join('-')).fadeIn();
+				$(this).removeClass('close');
+				$(this).addClass('open');
+			}
+		});
+	};
+	
+	/**
 	 * send active mode id to server
 	 * 
 	 * @param string mode: active mode id
@@ -52,18 +75,24 @@ function MainMenu(destId) {
 	 * @param array data: json array with data to draw 
 	 */
 	this.drawContentCb = function (data) {
-		$('#' + me.destId + ' > div.content').html('')
+		$('#' + me.destId + ' > div.content').html('');
 		$.each(data, function (key, val) {
 			var selector;
 			selector = '#' + me.destId + ' > div.content';
 			if (key !== "main") {
-				$('#' + me.destId + ' > div.content').append('<div class="categoryTitle">' + key + '</div>');
+				$('#' + me.destId + ' > div.content').append('<div id="category-' + val.id + '" class="categoryTitle"></div>');
+				$('#category-' + val.id).append('<div class="categoryEye"></div>');
+				$('#category-' + val.id).append('<div class="categoryTitleText">' + key + '</div>');
 				$('#' + me.destId + ' > div.content').append('<div class="category"></div>');
 				selector += ' > div.category';
 			}
-			$.each(val, function (key, val) {
+			$.each(val.entries, function (key, val) {
 				$(selector).append('<div id="entry-' + val.id + '">' + val.name + '</div>')
 			});
+		});
+		$('.categoryTitle').bind('click', function () {
+			$(this).children('div.categoryEye').toggleClass('open');
+			$(this).next().toggle('fast');
 		});
 	};
 
@@ -148,23 +177,7 @@ function MainMenu(destId) {
 			me.setMode(lastId, me.drawContent);
 		});
 
-		// bind show and hide clicks
-		$('[id^="button-menu"]').unbind('click');
-		$('[id^="button-menu"]').bind('click', function () {
-			var idElem;
-			idElem = $(this).attr('id').split('-');
-			idElem.shift(); // remove descripter (keep only ids)
-			if ($(this).hasClass('open')) {
-				$('#' + idElem.join('-')).fadeOut();
-				$(this).removeClass('open');
-				$(this).addClass('close');
-			}
-			else {
-				$('#' + idElem.join('-')).fadeIn();
-				$(this).removeClass('close');
-				$(this).addClass('open');
-			}
-		});
+		me.bindEye();
 	};
 }
 
