@@ -4,8 +4,39 @@ body {
 
 .leftColumn {
 	float:left;
+	display:inline-block;
+}
+
+.midColumn {
+	margin-left:275px;
+	margin-right:210px;
 }
 
 .rightColumn {
 	float:right;
+}
+
+.search {
+	display:none;
+	border:none;
+	padding:4px 7px;
+	background-image: url("../img/stripes/hor4.png"), url("../img/stripes/vert4.png");
+    background-position: right bottom, left top;
+    background-repeat: no-repeat;
+    background-color:#FFFFFF;
+}
+
+.search.init {
+	color:#AAAAAA;
+	font-style:italic;
+}
+
+.border {
+	background-image: url("../img/stripes/hor4.png"), url("../img/stripes/vert4.png"), url("../img/stripes/hor4.png"), url("../img/stripes/vert4.png");
+    background-position: left top, right top, right bottom, left bottom;
+    background-repeat: no-repeat;
+}
+
+.header {
+	height:50px;
 }

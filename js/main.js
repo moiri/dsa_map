@@ -1,6 +1,8 @@
 $(document).ready(function() {
 	// do stuff when DOM is ready
-	var mainMenu;
+	var mainMenu, infoMenu;
 	mainMenu = new MainMenu('menu-main');
-	mainMenu.drawTabs();
+	mainMenu.drawMenu();
+	infoMenu = new InfoMenu('menu-info');
+	infoMenu.drawMenu();
 });

@@ -1,45 +1,37 @@
 .mainMenu {
-	float:left;
-	min-height:385px;
 	margin-left:50px;
 	margin-top:50px;
-	background-color:#FFFFFF;
+	display:inline-block;
 }
 
 .mainMenu > .contentBox {
-	margin:10px;
-	padding:10px;
+	padding:15px;
+	background-color:#FFFFFF;
+	position:relative;
+	min-height:385px;
+	width:186px;
+	z-index:1;
 }
 
 .mainMenu * .content {
 	margin:5px;
 }
 
-.border {
-	background-image: url("../img/stripes/hor4.png"), url("../img/stripes/vert4.png"), url("../img/stripes/hor4.png"), url("../img/stripes/vert4.png");
-    background-position: left top, right top, right bottom, left bottom;
-    background-repeat: no-repeat;
-}
-
 .tab {
 	position:relative;
-	z-index:-1;
+	z-index:0;
 }
 
 .tab:hover, .tab.active {
-	z-index:0;
+	z-index:2;
 	cursor:pointer;
 }
 
 .tab.l0 {
 	position:absolute;
 	top:18px;
-	left:18px;
 	height:26px;
 	width:26px;
-}
-
-.tab.l0.open {
 	background-image: url("../img/icon/init_open.png");
 }
 
@@ -47,7 +39,15 @@
 	background-image: url("../img/icon/init_shut.png");
 }
 
-.tab.l1 {
+.leftColumn > .tab.l0 {
+	left:18px;
+}
+
+.rightColumn > .tab.l0 {
+	right:18px;
+}
+
+.mainMenu * .tab.l1 {
 	margin-top:-45px;
 	float:left;
 	padding:0 2px;
@@ -55,34 +55,34 @@
 	height:55px;
 }
 
-.tab.l2 {
+.mainMenu * .tab.l2 {
 	margin-left:-45px;
 	padding:2px 0;
 	width:55px;
 	height:45px;
 }
 
-.tab.l3 {
+.mainMenu * .tab.l3 {
 	margin-left:-40px;
 	padding:2px 0;
 	width:50px;
 	height:40px;
 }
 
-.tabContTitle {
+.mainMenu > .tabContTitle {
 	padding:0 10px;
 }
 
-.tabCont {
+.mainMenu > .tabCont {
 	display:none;
 }
 
-.tabCont.l2 {
+.mainMenu > .tabCont.l2 {
 	padding:10px 0;
 	position:absolute;
 }
 
-.categoryEye {
+.mainMenu * .categoryEye {
 	float:left;
 	width:15px;
 	height:15px;
@@ -90,34 +90,30 @@
 	background-image: url("../img/icon/eye_shut.png");
 }
 
-.categoryEye.open {
+.mainMenu * .categoryEye.open {
 	background-image: url("../img/icon/eye_open.png");
 }
 
-.categoryTitle {
+.mainMenu * .categoryTitle {
 	cursor:pointer;
 }
 
-.categoryTitleText {
+.mainMenu * .categoryTitleText {
 	font-weight:bold;
 }
 
-.category {
+.mainMenu * .category {
 	display:none;
 	margin-left:10px;
 }
 
-.search {
-	display:none;
-	border:none;
-	padding:4px 7px;
-	background-image: url("../img/stripes/hor4.png"), url("../img/stripes/vert4.png");
-    background-position: right bottom, left top;
-    background-repeat: no-repeat;
-    background-color:#FFFFFF;
+.mainMenu * .entry {
+	text-indent:-10px;
+	margin-left:10px;
 }
 
-.search.init {
-	color:#AAAAAA;
-	font-style:italic;
+.infoMenu {
+	width:200px;
+	min-height:385px;
+	margin-top:50px;
 }

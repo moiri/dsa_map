@@ -60,6 +60,7 @@ class MapDbMapper extends BaseDbMapper {
 	 * load mode entries from db
 	 *
 	 * @param array $mode:	complete mode information (use selectByUid('mode', id))
+	 * @param string $pattern: search pattern (optional, default = null)
 	 * @return array: an array with with all mode items of the specified mode.
 	 * This array can be converted into a json string (use json_encode())
 	 */
@@ -127,10 +128,6 @@ class MapDbMapper extends BaseDbMapper {
 				}
 			}
 		}
-		/*else {
-			// no entry
-			$retValue = false;
-		}*/
 		return $retValue;
 	}
 }

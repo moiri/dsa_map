@@ -7,24 +7,30 @@ function Menu() {
 
 	/**
 	 * bind click elemnt to eye hiding and showing the menu
+	 * 
+	 * @param string id: menu id
+	 * @param obj eye: object definig animate properties of the eye button
+	 * @param obj mid: object definig animate properties of the mid column
 	 */
-	Menu.prototype.bindEye = function () {
+	this.bindEye = function (id, eye, mid) {
 		// bind show and hide clicks
-		$('[id^="button-menu"]').unbind('click');
-		$('[id^="button-menu"]').bind('click', function () {
-			var idElem;
-			idElem = $(this).attr('id').split('-');
-			idElem.shift(); // remove descripter (keep only ids)
-			if ($(this).hasClass('open')) {
-				$('#' + idElem.join('-')).fadeOut();
-				$(this).removeClass('open');
-				$(this).addClass('close');
+		$('#button-' + id).unbind('click');
+		$('#button-' + id).bind('click', function () {
+			var eye;
+			eye = this;
+			if ($(eye).hasClass('close')) {
+				$(eye).animate(eye.open, 'fast', 'swing');
+				$('.midColumn').animate(mid.open,'fast', 'swing', function () {
+					$('#' + id).fadeIn('fast', 'swing');
+				});
 			}
 			else {
-				$('#' + idElem.join('-')).fadeIn();
-				$(this).removeClass('close');
-				$(this).addClass('open');
+				$('#' + id).fadeOut('fast', 'swing', function () {
+					$(eye).animate(eye.close, 'fast', 'swing');
+					$('.midColumn').animate(mid.close, 'fast', 'swing');
+				});
 			}
+			$(eye).toggleClass('close');
 		});
 	};
 
@@ -35,7 +41,7 @@ function Menu() {
 	 * @param func cb: this callback function is executed on sucess
 	 * @param obj cbo: callback scope (optional)
 	 */
-	Menu.prototype.setMode = function (mode, cb, cbo) {
+	this.setMode = function (mode, cb, cbo) {
 		if (cbo === undefined) {
 			cbo = this;
 		}
@@ -62,6 +68,8 @@ function MainMenu(destId) {
 
 	/**
 	 * get menu content with ajax and on success draw it
+	 * 
+	 * @param string pattern: serach pattern
 	 */
 	this.drawContent = function (pattern) {
 		var url;
@@ -104,7 +112,7 @@ function MainMenu(destId) {
 					selectCategory += ' > .category';
 				}
 				$.each(val.entries, function (key, val) {
-					$(selectCategory).append('<div id="entry-' + val.id + '">' + val.name + '</div>');
+					$(selectCategory).append('<div id="entry-' + val.id + '" class="entry">' + val.name + '</div>');
 				});
 			});
 			$('.categoryTitle').unbind('click');
@@ -118,10 +126,10 @@ function MainMenu(destId) {
 	/**
 	 * get main menu tabs with ajax and on success draw it
 	 */
-	this.drawTabs = function () {
+	this.drawMenu = function () {
 		var url;
 		url = "php/ajax/getMainMenu.php?tab=1";
-		$.getJSON(url, me.drawTabsCb);
+		$.getJSON(url, me.drawMenuCb);
 	};
 
 	/**
@@ -129,9 +137,28 @@ function MainMenu(destId) {
 	 * 
 	 * @param array data: json array with data to draw 
 	 */
-	this.drawTabsCb = function (data) {
-		var iteration, items;
+	this.drawMenuCb = function (data) {
+		var iteration, items, eyeAttr, midAttr;
 		items = [];
+		// define animate attributes (close / open menu) 
+		eyeAttr = [];
+		eyeAttr.open = {
+				top: '18px',
+				left: '18px'
+		};
+		eyeAttr = [];
+		eyeAttr.close = {
+				top: '8px',
+				left: '8px'
+		};
+
+		midAttr = [];
+		midAttr.open = {
+				marginLeft: '275px',
+		};
+		midAttr.close = {
+				marginLeft: '34px',
+		};
 
 		iteration = function (menu, destId, modeId, modeIdIt, lvl) {
 			var id, myId, cssClass;
@@ -168,7 +195,7 @@ function MainMenu(destId) {
 		}
 
 		iteration(data, me.destId, 0, 0, 1);
-		$('#' + destId).append('<div class="contentBox"></div>');
+		$('#' + destId).append('<div class="contentBox border"></div>');
 		$('#' + me.destId + ' > div.contentBox').append('<input id="menu-main-search" class="search init" type="text" />');
 		$('#' + me.destId + ' > div.contentBox').append('<div id="menu-main-content" class="content"></div>');
 		me.setMode('13', function () {
@@ -210,7 +237,7 @@ function MainMenu(destId) {
 		$('#' + me.destId + '-search').bind('keyup', function () {
 			me.drawContent($(this).val());
 		});
-		
+
 		// bind search key up events
 		$('#' + me.destId + '-search').unbind('click');
 		$('#' + me.destId + '-search').bind('click', function () {
@@ -220,8 +247,48 @@ function MainMenu(destId) {
 			}
 		});
 
-		me.bindEye();
+		me.bindEye(me.destId, eyeAttr, midAttr);
 	};
 }
 
 MainMenu.prototype = new Menu();
+
+/**
+ * InfoMenu class, child of Menu class
+ * 
+ * @param string destId: destination id to draw info menu to
+ */
+function InfoMenu(destId) {
+	var me = this;
+	me.destId = destId;
+
+	/**
+	 * draw the menu
+	 */
+	this.drawMenu = function () {
+		var eyeAttr, midAttr;
+		// define animate attributes (close / open menu) 
+		eyeAttr = [];
+		eyeAttr.open = {
+				top: '18px',
+				right: '18px'
+		};
+		eyeAttr = [];
+		eyeAttr.close = {
+				top: '8px',
+				right: '8px'
+		};
+
+		midAttr = [];
+		midAttr.open = {
+				marginRight: '210px',
+		};
+		midAttr.close = {
+				marginRight: '34px',
+		};
+
+		me.bindEye(me.destId, eyeAttr, midAttr);
+	};
+}
+
+InfoMenu.prototype = new Menu();
