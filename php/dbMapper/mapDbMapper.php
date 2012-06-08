@@ -88,10 +88,11 @@ class MapDbMapper extends BaseDbMapper {
 			$sepMode = sprintf(" AND t.id_mode = '%d'",
 					mysql_real_escape_string($mode['id']));
 		}
+		$search = "";
 		if($pattern != null) {
 			// search pattern is set, use it in WHERE
 			$modeString = 'search';
-			$sepMode = sprintf(" AND t.name LIKE '%s'",
+			$search = sprintf(" AND t.name LIKE '%s'",
 					mysql_real_escape_string("%".$pattern."%"));
 		}
 		
@@ -101,12 +102,13 @@ class MapDbMapper extends BaseDbMapper {
 			return $retValue;
 		}
 		
-		$sql = sprintf("SELECT t.id AS id, t.name AS name%s FROM %s AS t%s WHERE 1%s%s ORDER BY t.name;",
+		$sql = sprintf("SELECT t.id AS id, t.name AS name%s FROM %s AS t%s WHERE 1%s%s%s ORDER BY t.name;",
 				$catSel,
 				$table,
 				$catJoin,
 				$display,
-				$sepMode);
+				$sepMode,
+				$search);
 
 		// set error string
 		if($this->debug) $errorQuery = "Error: Invalid mySQL query: ".$sql;
