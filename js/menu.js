@@ -27,7 +27,7 @@ function Menu() {
 			}
 		});
 	};
-	
+
 	/**
 	 * send active mode id to server
 	 * 
@@ -63,37 +63,56 @@ function MainMenu(destId) {
 	/**
 	 * get menu content with ajax and on success draw it
 	 */
-	this.drawContent = function () {
+	this.drawContent = function (pattern) {
 		var url;
-		url = "php/ajax/getMainMenu.php?content=1";
+		url = 'php/ajax/getMainMenu.php?content=1';
+		if ((pattern !== undefined) && (pattern !== '')) {
+			url += '&pattern=' + pattern;
+		}
 		$.getJSON(url, me.drawContentCb);
 	};
-	
+
 	/**
 	 * draw menu content int main menu (callback from drawContent)
 	 * 
 	 * @param array data: json array with data to draw 
 	 */
 	this.drawContentCb = function (data) {
-		$('#' + me.destId + ' > div.content').html('');
-		$.each(data, function (key, val) {
-			var selector;
-			selector = '#' + me.destId + ' > div.content';
-			if (key !== "main") {
-				$('#' + me.destId + ' > div.content').append('<div id="category-' + val.id + '" class="categoryTitle"></div>');
-				$('#category-' + val.id).append('<div class="categoryEye"></div>');
-				$('#category-' + val.id).append('<div class="categoryTitleText">' + key + '</div>');
-				$('#' + me.destId + ' > div.content').append('<div class="category"></div>');
-				selector += ' > div.category';
-			}
-			$.each(val.entries, function (key, val) {
-				$(selector).append('<div id="entry-' + val.id + '">' + val.name + '</div>')
+		var selectContent, mode;
+		selectContent = '#' + me.destId + '-content';
+		$(selectContent).html('');
+		$('#' + me.destId + '-search').hide();
+		if (data === -99) {
+			$(selectContent).append('<div>server error</div>');
+			return;
+		}
+		else if (data.main.mode === 'free') {
+			$(selectContent).append('<div>free mode</div>');
+			return;
+		}
+		else {
+			mode = data.main.mode;
+			$('#' + me.destId + '-search').show();
+			$.each(data, function (key, val) {
+				var selectCategory;
+				selectCategory = selectContent;
+				if ((key !== 'main') && (mode !== 'search')) {
+					$(selectContent).append('<div id="category-' + val.id + '" class="categoryTitle"></div>');
+					$('#category-' + val.id).append('<div class="categoryEye"></div>');
+					$('#category-' + val.id).append('<div class="categoryTitleText">' + key + '</div>');
+					$(selectContent).append('<div class="category"></div>');
+					selectCategory += ' > .category';
+				}
+				$.each(val.entries, function (key, val) {
+					$(selectCategory).append('<div id="entry-' + val.id + '">' + val.name + '</div>');
+				});
 			});
-		});
-		$('.categoryTitle').bind('click', function () {
-			$(this).children('div.categoryEye').toggleClass('open');
-			$(this).next().toggle('fast');
-		});
+			$('.categoryTitle').unbind('click');
+			$('.categoryTitle').bind('click', function () {
+				$(this).children('div.categoryEye').toggleClass('open');
+				$(this).next().toggle('fast');
+			});
+		}
 	};
 
 	/**
@@ -149,7 +168,12 @@ function MainMenu(destId) {
 		}
 
 		iteration(data, me.destId, 0, 0, 1);
-		$('#' + destId).append('<div class="content"></div>');
+		$('#' + destId).append('<div class="contentBox"></div>');
+		$('#' + me.destId + ' > div.contentBox').append('<input id="menu-main-search" class="search init" type="text" />');
+		$('#' + me.destId + ' > div.contentBox').append('<div id="menu-main-content" class="content"></div>');
+		me.setMode('13', function () {
+			me.drawContent();
+		});
 
 		// bind mode change click events
 		$('[id^="mode-"]').unbind('click');
@@ -157,6 +181,8 @@ function MainMenu(destId) {
 			var idElem, i, id, lastId, myId, url;
 			$('[id^="tabCont-"]').hide();
 			$('[id^="mode-"]').removeClass('active');
+			$('#' + me.destId + '-search').val('Suche');
+			$('#' + me.destId + '-search').addClass('init');
 
 			idElem = $(this).attr('id').split('-');
 			idElem.shift(); // remove descripter (keep only ids)
@@ -174,7 +200,24 @@ function MainMenu(destId) {
 				lastId = idElem[i];
 			}
 
-			me.setMode(lastId, me.drawContent);
+			me.setMode(lastId, function () {
+				me.drawContent();
+			});
+		});
+
+		// bind search key up events
+		$('#' + me.destId + '-search').unbind('keyup');
+		$('#' + me.destId + '-search').bind('keyup', function () {
+			me.drawContent($(this).val());
+		});
+		
+		// bind search key up events
+		$('#' + me.destId + '-search').unbind('click');
+		$('#' + me.destId + '-search').bind('click', function () {
+			if ($(this).val() === 'Suche') {
+				$(this).val('');
+				$('#' + me.destId + '-search').removeClass('init');
+			}
 		});
 
 		me.bindEye();

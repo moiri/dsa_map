@@ -1,3 +1,11 @@
 body {
     font-family: Verdana,Arial,Helvetica,sans-serif;
 }
+
+.leftColumn {
+	float:left;
+}
+
+.rightColumn {
+	float:right;
+}

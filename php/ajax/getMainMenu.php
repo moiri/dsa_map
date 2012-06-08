@@ -18,7 +18,12 @@ if (isset($_GET['tab'])) {
 else if (isset($_GET['content'])) {
 	$res = $map->selectByUid('mode', $_SESSION['mode']);
 	if ($res) {
-		$res = $map->getMainMenuEntries($res);
+		if (isset($_GET['pattern'])) {
+			$res = $map->getMainMenuEntries($res, $_GET['pattern']);
+		}
+		else {
+			$res = $map->getMainMenuEntries($res);
+		}
 	}
 }
 if ($res) {

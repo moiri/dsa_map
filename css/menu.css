@@ -6,9 +6,13 @@
 	background-color:#FFFFFF;
 }
 
-.mainMenu > .content {
+.mainMenu > .contentBox {
 	margin:10px;
 	padding:10px;
+}
+
+.mainMenu * .content {
+	margin:5px;
 }
 
 .border {
@@ -101,4 +105,19 @@
 .category {
 	display:none;
 	margin-left:10px;
+}
+
+.search {
+	display:none;
+	border:none;
+	padding:4px 7px;
+	background-image: url("../img/stripes/hor4.png"), url("../img/stripes/vert4.png");
+    background-position: right bottom, left top;
+    background-repeat: no-repeat;
+    background-color:#FFFFFF;
+}
+
+.search.init {
+	color:#AAAAAA;
+	font-style:italic;
 }

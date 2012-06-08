@@ -63,11 +63,11 @@ class MapDbMapper extends BaseDbMapper {
 	 * @return array: an array with with all mode items of the specified mode.
 	 * This array can be converted into a json string (use json_encode())
 	 */
-	function getMainMenuEntries ($mode) {
+	function getMainMenuEntries ($mode, $pattern = null) {
 		$retValue = false;
-		if ($mode['freeMode'] == 1) {
-			return false;
-		}
+		$retValue = array();
+		$modeString = 'res';
+
 		$table = mysql_real_escape_string($mode['tableName']);
 		$catSel = "";
 		$catJoin = "";
@@ -87,6 +87,19 @@ class MapDbMapper extends BaseDbMapper {
 			$sepMode = sprintf(" AND t.id_mode = '%d'",
 					mysql_real_escape_string($mode['id']));
 		}
+		if($pattern != null) {
+			// search pattern is set, use it in WHERE
+			$modeString = 'search';
+			$sepMode = sprintf(" AND t.name LIKE '%s'",
+					mysql_real_escape_string("%".$pattern."%"));
+		}
+		
+		$retValue['main'] = array('name' => 'main', 'id' => 0, 'mode' => $modeString, 'entries' => array());
+		if ($mode['freeMode'] == 1) {
+			$retValue['main']['mode'] = 'free';
+			return $retValue;
+		}
+		
 		$sql = sprintf("SELECT t.id AS id, t.name AS name%s FROM %s AS t%s WHERE 1%s%s ORDER BY t.name;",
 				$catSel,
 				$table,
@@ -102,8 +115,6 @@ class MapDbMapper extends BaseDbMapper {
 		or die ($errorQuery);
 		$num_rows = mysql_num_rows($result);
 		if($num_rows >= 1) {
-			$retValue = array();
-			$retValue['main'] = array('name' => 'main', 'id' => 0, 'entries' => array());
 			while($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
 				if (isset($row['category'])) {
 					if (!isset($retValue[$row['category']])) {
@@ -116,10 +127,10 @@ class MapDbMapper extends BaseDbMapper {
 				}
 			}
 		}
-		else {
+		/*else {
 			// no entry
 			$retValue = false;
-		}
+		}*/
 		return $retValue;
 	}
 }

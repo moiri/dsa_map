@@ -19,13 +19,16 @@
 <body>
 	<div id="header"></div>
 	<div id="content">
-		<div>
+		<div class="leftColomn">
 			<div id="button-menu-main" class="tab l0 open"></div>
-			<div id="menu-main" class="mainMenu border">
-			</div>
+			<div id="menu-main" class="mainMenu border"></div>
 		</div>
-		<div id="map"></div>
-		<div id="infoBox"></div>
+		<div class="midColomn">
+			<div id="map"></div>
+		</div>
+		<div class="rightColomn">
+			<div id="infoBox"></div>
+		</div>
 	</div>
 	<div id="footer"></div>
 </body>
