@@ -31,7 +31,7 @@ else if ($_GET['j'] == 'tab') {
 	$res = $map->getMainMenu();
 }
 else if ($_GET['j'] == 'allImg') {
-
+	$res = $map->getAllImgs();
 }
 
 if ($res) {

@@ -19,6 +19,59 @@ class MapDbMapper extends BaseDbMapper {
 	function MapDbMapper($server="",$database="",$login="",$password=""){
 		$this->BaseDbMapper($server,$database,$login,$password);
 	}
+	
+	/**
+	 * 
+	 */
+	function getAllImgs () {
+		$sql = "
+		SELECT DISTINCT tableName
+		FROM mode
+		WHERE active='1'
+		AND tableName!='';";
+		
+		if($this->debug) $errorQuery = "Error: Invalid mySQL query: ".$sql;
+		else $errorQuery = "Error: Invalid mySQL query!";
+		$result = mysql_query($sql, $this->handle)
+		or die ($errorQuery);
+		
+		$num_rows = mysql_num_rows($result);
+		if($num_rows > 0) {
+			$table = array();
+			while($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
+				array_push($table, $row);
+			}
+		}
+		else {
+			// no entry
+			return false;
+		}
+		
+		
+		$retValue = array();
+		for ($i = 0; $i < count($table); $i++) {
+			$sql = "
+			SELECT id, picturePath
+			FROM ".$table[$i]['tableName']."
+			WHERE picturePath!='';";
+			if($this->debug) $errorQuery = "Error: Invalid mySQL query: ".$sql;
+			else $errorQuery = "Error: Invalid mySQL query!";
+			$result = mysql_query($sql, $this->handle)
+			or die ($errorQuery);
+			$num_rows = mysql_num_rows($result);
+			if($num_rows >= 1) {
+				while($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
+					$row['table'] = $table[$i]['tableName'];
+					array_push($retValue, $row);
+				}
+			}
+		}
+		if (count($retValue) == 0) {
+			$retValue = false;
+		}
+		
+		return $retValue;
+	}
 
 	/**
 	 * load mode information from server and build menu structure
@@ -37,21 +90,27 @@ class MapDbMapper extends BaseDbMapper {
 		AND lvl=".$lvl."
 		AND parentId=".$parentId."
 		ORDER BY sequence;";
-		$i = 0;
-		if($result = mysql_query($sql, $this->handle)) {
-			if(mysql_num_rows($result) > 0) {
-				while ($elem = mysql_fetch_assoc($result)) {
-					$menu[$i] = $elem;
-					$res = $this->getMainMenu($lvl+1, $elem['id']);
-					if($res) {
-						$menu[$i]['submenu'] = $res;
-					}
-					$i++;
+		
+		// set error string
+		if($this->debug) $errorQuery = "Error: Invalid mySQL query: ".$sql;
+		else $errorQuery = "Error: Invalid mySQL query!";
+
+		// execute query
+		$result = mysql_query($sql, $this->handle)
+		or die ($errorQuery);
+		$num_rows = mysql_num_rows($result);
+
+		if($num_rows > 0) {
+			while ($elem = mysql_fetch_assoc($result)) {
+				array_push($menu, $elem);
+				$res = $this->getMainMenu($lvl+1, $elem['id']);
+				if($res) {
+					$menu[count($menu) - 1]['submenu'] = $res;
 				}
 			}
-			else {
-				return false;
-			}
+		}
+		else {
+			return false;
 		}
 		return $menu;
 	}
@@ -95,13 +154,13 @@ class MapDbMapper extends BaseDbMapper {
 			$search = sprintf(" AND t.name LIKE '%s'",
 					mysql_real_escape_string("%".$pattern."%"));
 		}
-		
+
 		$retValue['main'] = array('name' => 'main', 'id' => 0, 'mode' => $modeString, 'entries' => array());
 		if ($mode['freeMode'] == 1) {
 			$retValue['main']['mode'] = 'free';
 			return $retValue;
 		}
-		
+
 		$sql = sprintf("SELECT t.id AS id, t.name AS name%s FROM %s AS t%s WHERE 1%s%s%s ORDER BY t.name;",
 				$catSel,
 				$table,
@@ -117,7 +176,7 @@ class MapDbMapper extends BaseDbMapper {
 		$result = mysql_query($sql, $this->handle)
 		or die ($errorQuery);
 		$num_rows = mysql_num_rows($result);
-		if($num_rows >= 1) {
+		if($num_rows > 0) {
 			while($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
 				if (isset($row['category'])) {
 					if (!isset($retValue[$row['category']])) {
