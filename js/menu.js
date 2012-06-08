@@ -73,7 +73,7 @@ function MainMenu(destId) {
 	 */
 	this.drawContent = function (pattern) {
 		var url;
-		url = 'php/ajax/getMainMenu.php?content=1';
+		url = 'php/ajax/getJson.php?j=content';
 		if ((pattern !== undefined) && (pattern !== '')) {
 			url += '&pattern=' + pattern;
 		}
@@ -128,7 +128,7 @@ function MainMenu(destId) {
 	 */
 	this.drawMenu = function () {
 		var url;
-		url = "php/ajax/getMainMenu.php?tab=1";
+		url = "php/ajax/getJson.php?j=tab";
 		$.getJSON(url, me.drawMenuCb);
 	};
 
