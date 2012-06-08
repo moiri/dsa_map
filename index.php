@@ -25,11 +25,11 @@
 		</div>
 		<div class="rightColumn">
 			<div id="button-menu-info" class="tab l0 open"></div>
-			<div id="menu-info" class="border infoMenu"></div>
+			<div id="menu-info" class="border2 infoMenu"></div>
 		</div>
 		<div class="midColumn">
 			<div class="header"></div>
-			<div id="map" class="mapBox border">
+			<div id="map" class="mapBox border2">
 				<canvas id="map-canvas" class="canvas">
 					Your browser does not support the canvas element.
 				</canvas>

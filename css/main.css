@@ -33,7 +33,13 @@ body {
 
 .border {
 	background-image: url("../img/stripes/hor4.png"), url("../img/stripes/vert4.png"), url("../img/stripes/hor4.png"), url("../img/stripes/vert4.png");
-    background-position: left top, right top, right bottom, left bottom;
+    background-position: left top, right bottom, right bottom, left top;
+    background-repeat: no-repeat;
+}
+
+.border2 {
+	background-image: url("../img/stripes/hor4.png"), url("../img/stripes/vert4.png"), url("../img/stripes/hor4.png"), url("../img/stripes/vert4.png");
+    background-position: left bottom, right top, right top, left bottom;
     background-repeat: no-repeat;
 }
 

@@ -82,6 +82,10 @@
 	position:absolute;
 }
 
+.mainMenu * .tabCont.l3 {
+	padding-bottom:10px;
+}
+
 .mainMenu * .categoryEye {
 	float:left;
 	width:15px;

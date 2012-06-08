@@ -9,25 +9,25 @@ function Menu() {
 	 * bind click elemnt to eye hiding and showing the menu
 	 * 
 	 * @param string id: menu id
-	 * @param obj eye: object definig animate properties of the eye button
-	 * @param obj mid: object definig animate properties of the mid column
+	 * @param obj eyeAttr: object definig animate properties of the eye button
+	 * @param obj midAttr: object definig animate properties of the mid column
 	 */
-	this.bindEye = function (id, eye, mid) {
+	this.bindEye = function (id, eyeAttr, midAttr) {
 		// bind show and hide clicks
 		$('#button-' + id).unbind('click');
 		$('#button-' + id).bind('click', function () {
 			var eye;
 			eye = this;
 			if ($(eye).hasClass('close')) {
-				$(eye).animate(eye.open, 'fast', 'swing');
-				$('.midColumn').animate(mid.open,'fast', 'swing', function () {
+				$(eye).animate(eyeAttr.open, 'fast', 'swing');
+				$('.midColumn').animate(midAttr.open,'fast', 'swing', function () {
 					$('#' + id).fadeIn('fast', 'swing');
 				});
 			}
 			else {
 				$('#' + id).fadeOut('fast', 'swing', function () {
-					$(eye).animate(eye.close, 'fast', 'swing');
-					$('.midColumn').animate(mid.close, 'fast', 'swing');
+					$(eye).animate(eyeAttr.close, 'fast', 'swing');
+					$('.midColumn').animate(midAttr.close, 'fast', 'swing');
 				});
 			}
 			$(eye).toggleClass('close');
@@ -146,7 +146,6 @@ function MainMenu(destId) {
 				top: '18px',
 				left: '18px'
 		};
-		eyeAttr = [];
 		eyeAttr.close = {
 				top: '8px',
 				left: '8px'
@@ -273,7 +272,6 @@ function InfoMenu(destId) {
 				top: '18px',
 				right: '18px'
 		};
-		eyeAttr = [];
 		eyeAttr.close = {
 				top: '8px',
 				right: '8px'
