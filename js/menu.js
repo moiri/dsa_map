@@ -12,7 +12,7 @@ function Menu() {
 	 * @param obj eyeAttr: object definig animate properties of the eye button
 	 * @param obj midAttr: object definig animate properties of the mid column
 	 */
-	this.bindEye = function (id, eyeAttr, midAttr) {
+	this.bindEye = function (id, eyeAttr, midAttr, cb) {
 		// bind show and hide clicks
 		$('#button-' + id).unbind('click');
 		$('#button-' + id).bind('click', function () {
@@ -21,13 +21,13 @@ function Menu() {
 			if ($(eye).hasClass('close')) {
 				$(eye).animate(eyeAttr.open, 'fast', 'swing');
 				$('.midColumn').animate(midAttr.open,'fast', 'swing', function () {
-					$('#' + id).fadeIn('fast', 'swing');
+					$('#' + id).fadeIn('fast', 'swing', cb);
 				});
 			}
 			else {
 				$('#' + id).fadeOut('fast', 'swing', function () {
 					$(eye).animate(eyeAttr.close, 'fast', 'swing');
-					$('.midColumn').animate(midAttr.close, 'fast', 'swing');
+					$('.midColumn').animate(midAttr.close, 'fast', 'swing', cb);
 				});
 			}
 			$(eye).toggleClass('close');
@@ -62,9 +62,10 @@ function Menu() {
  * 
  * @param string destId: destination id to draw main menu to
  */
-function MainMenu(destId) {
+function MainMenu(destId, cb) {
 	var me = this;
 	me.destId = destId;
+	me.cDrawCb = cb;
 
 	/**
 	 * get menu content with ajax and on success draw it
@@ -246,7 +247,7 @@ function MainMenu(destId) {
 			}
 		});
 
-		me.bindEye(me.destId, eyeAttr, midAttr);
+		me.bindEye(me.destId, eyeAttr, midAttr, me.cDrawCb);
 	};
 }
 
@@ -257,9 +258,10 @@ MainMenu.prototype = new Menu();
  * 
  * @param string destId: destination id to draw info menu to
  */
-function InfoMenu(destId) {
+function InfoMenu(destId, cb) {
 	var me = this;
 	me.destId = destId;
+	me.cDrawCb = cb;
 
 	/**
 	 * draw the menu
@@ -285,7 +287,7 @@ function InfoMenu(destId) {
 				marginRight: '34px',
 		};
 
-		me.bindEye(me.destId, eyeAttr, midAttr);
+		me.bindEye(me.destId, eyeAttr, midAttr, me.cDrawCb);
 	};
 }
 

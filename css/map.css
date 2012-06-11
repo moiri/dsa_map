@@ -1,8 +1,7 @@
 .mapBox {
-	
+	padding:5px;
 }
 
 .canvas {
 	width:100%;
-	height:500px;
 }
