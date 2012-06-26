@@ -31,7 +31,8 @@
 		<div class="midColumn">
 			<div class="header"><div id="loader" class="loader"></div></div>
 			<div id="map" class="mapBox border2">
-				<div id="maxZoom" class="mapMsg">Maximale Vergr&ouml;sserung erreicht</div>
+				<div id="maxZoom" class="mapMsg">H&ouml;chste Zoomstufe erreicht</div>
+				<div id="minZoom" class="mapMsg">Kleinste Zoomstufe erreicht</div>
 				<canvas id="map-canvas" class="canvas" width='1000' height='1358'>
 					Your browser does not support the canvas element.
 				</canvas>

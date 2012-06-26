@@ -61,6 +61,7 @@ function Menu() {
  * MainMenu class, child of Menu class
  * 
  * @param string destId: destination id to draw main menu to
+ * @param func cb: this callback function is executed onclick on the eye
  */
 function MainMenu(destId, cb) {
 	var me = this;
@@ -257,6 +258,7 @@ MainMenu.prototype = new Menu();
  * InfoMenu class, child of Menu class
  * 
  * @param string destId: destination id to draw info menu to
+ * @param func cb: this callback function is executed onclick on the eye
  */
 function InfoMenu(destId, cb) {
 	var me = this;
