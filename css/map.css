@@ -1,5 +1,13 @@
 .mapBox {
-	padding:5px;
+	padding:5px 5px 0 5px;
+}
+
+.mapMsg {
+	position:absolute;
+	margin:10px;
+	padding:5px 10px;
+	display:none;
+	background-color:#FFFFFF;
 }
 
 .canvas {
