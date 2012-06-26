@@ -176,7 +176,7 @@ function Map(mapId) {
 					// min zoom reached, show warning
 					$('#minZoom').fadeIn('fast', 'swing', function () {
 						setTimeout(function () {
-							$('#maxZoom').fadeOut('fast', 'swing');
+							$('#minZoom').fadeOut('fast', 'swing');
 						}, 1500);
 					});
 				}
