@@ -1,5 +1,6 @@
 .mapBox {
 	padding:5px 5px 0 5px;
+	position:fixed;
 }
 
 .mapMsg {
@@ -11,5 +12,5 @@
 }
 
 .canvas {
-	width:100%;
+	/*width:100%;*/
 }

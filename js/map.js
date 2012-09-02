@@ -16,11 +16,11 @@ function Map(mapId) {
 	me.size.zoom = 1;
 
 	/**
-	 * draws image sto the canvas (atm only the main map is drawn - hardcoded)
+	 * draws image to the canvas (atm only the main map is drawn - hardcoded)
 	 * 
 	 * @param int dx: x coordinate in pixel of the left border of the image (real pixel read from html)
 	 * @param int dy: y coordinate in pixel of the top border of the image (real pixel read from html)
-	 * @return array: modified (real) x and y coordiantes passed as parameters 
+	 * @return array: modified (real) x and y coordinates passed as parameters 
 	 */
 	this.drawImageToCanvas = function (dx, dy) {
 		var img, dx, dy, dw, dh, clearCanvas, proj;
@@ -146,9 +146,9 @@ function Map(mapId) {
 			var dx, dy, x, y, xMid, yMid, maxImgFact, zoomFact;
 			maxImgFact = 2;
 			zoomFact = 1;
-			x = e.pageX - this.offsetLeft;
+			x = e.pageX - $(this).offset().left;
 			xMid = $('#map-canvas').width() / 2;
-			y = e.pageY - this.offsetTop;
+			y = e.pageY - $(this).offset().top;
 			yMid = $('#map-canvas').height() / 2;
 
 			if (zoomIn) {
@@ -189,12 +189,12 @@ function Map(mapId) {
 			// draw image
 			me.deltaFix = me.drawImageToCanvas(dx, dy);
 		};
-		// bind doublecklick with left button
+		// bind double-click with left button
 		$('#map-canvas').bind("contextmenu",function(e) {
 			if (timer === 0) {
 				timer = setTimeout(function () {
 					timer = 0;
-					// TODO: if a contextmenu should apear, inster functionnality here
+					// TODO: if a context-menu should appear, insert functionality here
 				}, 500);
 			}
 			else {
@@ -204,14 +204,14 @@ function Map(mapId) {
 			}
             return false;
 		});
-		// bind doublecklick with right button
+		// bind double-click with right button
 		$('#map-canvas').bind('dblclick', function (e) {
 			zoom.call(this, e, true);
 		});
 	};
 	
 	/**
-	 * initialise the map by loading all image paths from the db
+	 * initialize the map by loading all image paths from the db
 	 */
 	this.initMap = function () {
 		var url;
@@ -226,7 +226,7 @@ function Map(mapId) {
 		var iw, ih, ia, cw, ch, ca, dw, dh, dx, dy, ratio, img;
 		
 		iw = me.size.iw; // original image with
-		ih = me.size.ih; // original image heigth
+		ih = me.size.ih; // original image height
 		ia = iw / ih; // original image aspect
 		cw = $('#map-canvas').width(); // canvas width
 		ch = $('#map-canvas').height(); // canvas height

@@ -33,6 +33,16 @@ function Menu() {
 			$(eye).toggleClass('close');
 		});
 	};
+	
+	/**
+	 * 
+	 */
+	this.bindEntry = function (idPrefix, cb) {
+		$().unbind('click');
+		$().bind('click', function () {
+			
+		});
+	};
 
 	/**
 	 * send active mode id to server
