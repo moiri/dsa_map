@@ -4,6 +4,7 @@
 function Menu() {
 	var me = this;
 	me.mode;
+	me.eyeWidth = 22;
 
 	/**
 	 * bind click elemnt to eye hiding and showing the menu
@@ -16,10 +17,14 @@ function Menu() {
 		// bind show and hide clicks
 		$('#button-' + id).unbind('click');
 		$('#button-' + id).bind('click', function () {
-			var eye;
+			var eye, delta;
+			delta = 3;
 			eye = this;
 			if ($(eye).hasClass('close')) {
 				$(eye).animate(eyeAttr.open, 'fast', 'swing');
+				$('#map-canvas').animate({
+					width: $('#map-canvas').width() - me.width + me.eyeWidth + delta + 'px',
+				}, 'fast', 'swing');
 				$('.midColumn').animate(midAttr.open,'fast', 'swing', function () {
 					$('#' + id).fadeIn('fast', 'swing', cb);
 				});
@@ -27,6 +32,9 @@ function Menu() {
 			else {
 				$('#' + id).fadeOut('fast', 'swing', function () {
 					$(eye).animate(eyeAttr.close, 'fast', 'swing');
+					$('#map-canvas').animate({
+						width: $('#map-canvas').width() + me.width - me.eyeWidth - delta + 'px',
+					}, 'fast', 'swing');
 					$('.midColumn').animate(midAttr.close, 'fast', 'swing', cb);
 				});
 			}
@@ -64,6 +72,15 @@ function Menu() {
 			}
 		});
 	};
+	
+	/**
+	 * set menu width
+	 * 
+	 * @param int width: menu width
+	 */
+	this.setWidth = function (width) {
+		me.width = width;
+	}
 }
 
 
@@ -258,6 +275,8 @@ function MainMenu(destId, cb) {
 			}
 		});
 
+		me.setWidth($('#' + destId).width() + 50);
+		$('#map-canvas').width($('#map-canvas').width() - me.width - me.eyeWidth);
 		me.bindEye(me.destId, eyeAttr, midAttr, me.cDrawCb);
 	};
 }
@@ -299,6 +318,8 @@ function InfoMenu(destId, cb) {
 				marginRight: '34px',
 		};
 
+		me.setWidth($('#' + destId).width());
+		$('#map-canvas').width($('#map-canvas').width() - me.width - me.eyeWidth);
 		me.bindEye(me.destId, eyeAttr, midAttr, me.cDrawCb);
 	};
 }
