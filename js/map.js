@@ -25,16 +25,16 @@ function Map(mapId) {
 	this.drawImageToCanvas = function (dx, dy) {
 		var img, dx, dy, dw, dh, clearCanvas, proj;
 		if (dx === undefined) {
-			dx = 0;
+			dx = me.deltaFix.x;
 		}
 		if (dy === undefined) {
-			dy = 0;
+			dy = me.deltaFix.y;
 		}
 		proj = me.tansformToProjection(dx, dy);
 		clearCanvas = false;
 		dw = me.size.dw * me.size.zoom;	// calculate width of rendered image
 		dh = me.size.dh * me.size.zoom;	// calculate height of rendered image
-		
+
 		if (me.size.iw < dw) {
 			// canvas is smaller than image in canvas
 			if (proj.x > 0) {
@@ -78,14 +78,19 @@ function Map(mapId) {
 			}
 		}
 
-		img = me.images['main-0']; // TODO: use parameter
+		//img = me.images['main-0']; // TODO: use parameter
 		if (clearCanvas === true) {
 			me.context.clearRect (0, 0, me.size.iw, me.size.ih);
 		}
-		me.context.drawImage(img, 0, 0, me.size.iw, me.size.ih, proj.x, proj.y, dw, dh);
+		for (var index in me.images) {
+			if (me.images.hasOwnProperty(index)) {
+				img = me.images[index];
+				me.context.drawImage(img, 0, 0, me.size.iw, me.size.ih, proj.x, proj.y, dw, dh);
+			}	
+		}
 		return me.tansformToReal(proj.x, proj.y);
 	};
-	
+
 	/**
 	 * allow to move the canvas content by drag and dropping
 	 */
@@ -181,11 +186,11 @@ function Map(mapId) {
 					});
 				}
 			}
-			
+
 			// calculate x and y coord of left and top border
 			dx = zoomFact * (me.deltaFix.x - x) + xMid;
 			dy = zoomFact * (me.deltaFix.y - y) + yMid;
-			
+
 			// draw image
 			me.deltaFix = me.drawImageToCanvas(dx, dy);
 		};
@@ -202,14 +207,14 @@ function Map(mapId) {
 				timer = 0;
 				zoom.call(this, e, false);
 			}
-            return false;
+			return false;
 		});
 		// bind double-click with right button
 		$('#map-canvas').bind('dblclick', function (e) {
 			zoom.call(this, e, true);
 		});
 	};
-	
+
 	/**
 	 * initialize the map by loading all image paths from the db
 	 */
@@ -218,20 +223,20 @@ function Map(mapId) {
 		url = "php/ajax/getJson.php?j=allImg";
 		$.getJSON(url, me.loadImages);
 	};
-	
+
 	/**
 	 * first draw of map on the canvas element (calculate projection aspects, etc)
 	 */
 	this.initMapOnCanvas = function () {
 		var iw, ih, ia, cw, ch, ca, dw, dh, dx, dy, ratio, img;
-		
+
 		iw = me.size.iw; // original image with
 		ih = me.size.ih; // original image height
 		ia = iw / ih; // original image aspect
 		cw = $('#map-canvas').width(); // canvas width
 		ch = $('#map-canvas').height(); // canvas height
 		ca = cw / ch; // canvas aspect
-		
+
 		if (ia === ca) {
 			// canvas and image have the same aspect
 			dw = iw;
@@ -256,7 +261,7 @@ function Map(mapId) {
 			dx = Math.round((iw - dw) / 2); // center horizontal
 			dy = 0;
 		}
-		
+
 		me.size.wr = iw / cw;
 		me.size.hr = ih / ch;
 		me.size.dw = dw;
@@ -268,44 +273,57 @@ function Map(mapId) {
 		me.context.drawImage(img, 0, 0, me.size.iw, me.size.ih, dx, dy, dw, dh);
 		me.deltaFix = me.tansformToReal(dx, dy);
 	};
-	
+
 	/**
-	 * load images into the ram of the browser
-	 * @deprecated: need to thing this over
-	 * it takes a lot of time to load all and uses up lots of memory
+	 * load one image into the ram but only if it is not alrady existing
+	 * 
+	 * @param array imgDb: an array containing img information [id, table, picturePath]
+	 * @param function cb: callback function to be executed after the img is loaded
 	 */
-	this.loadImages = function (imgDb) {
-		var index, loadImage, contMap;
-		index = 0;
-		contMap = [];
-		contMap.picturePath = "map/continental.jpg";
-		contMap.id = '0';
-		contMap.table = 'main';
-		imgDb.push(contMap);
-		LoadImage();
-
-		function LoadImage() {
-			var img;
-			//stop condition:
-			if (index >= imgDb.length) {
-				// to continue start next funtion here
-				me.initMapOnCanvas();
-				return false;
+	this.loadImage = function (imgDb, cb) {
+		var img, id;
+		if (imgDb !== undefined) {
+			id = imgDb.table + '-' + imgDb.id;
+			if (me.images[id] === undefined) {
+				img = new Image();
+				img.src = 'img/' + imgDb.picturePath;
+				img.onload = function() {
+					me.images[id] = img;
+					cb.call(me);
+				}
 			}
-
-			img = new Image();
-			img.src = 'img/' + imgDb[index].picturePath;
-			img.onload = function() {
-				var id;
-				id = imgDb[index].table + '-' + imgDb[index].id;
-				index++;
-				me.images[id] = img;
-				$('#loader').html(index + " elements of " + imgDb.length + " loaded");
-				LoadImage();
-			};
+			else {
+				cb.call(me);
+			}
+		}
+		else {
+			cb.call(me);
 		}
 	};
-	
+
+	/**
+	 * load multiple images into the ram
+	 * 
+	 * @param array imgsDb: array containing arrays with img information [id, table, picturePath]
+	 * @param function cb: callback function to be executed after the last img is loaded
+	 */
+	this.loadImages = function (imgsDb, cb) {
+		var iterate, idx, iterationCb;
+
+		function iterate () {
+			// stop condition:
+			if (idx >= imgsDb.length - 1) {
+				// last loadImg iteration with cb as callback function
+				iterationCb = cb;
+			}
+			me.loadImage(imgsDb[idx++], iterationCb);
+		};
+
+		idx = 0;
+		iterationCb = iterate;
+		iterate();
+	};
+
 	/**
 	 * transform real coordiantes to projected coordiantes
 	 * 
@@ -320,7 +338,7 @@ function Map(mapId) {
 		proj.y = Math.round(y * me.size.hr);
 		return proj;
 	};
-	
+
 	/**
 	 * transform projected coordiantes to real coordiantes
 	 * 
