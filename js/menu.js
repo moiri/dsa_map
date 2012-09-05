@@ -113,9 +113,10 @@ function Menu() {
  * 
  * @param string destId: destination id to draw main menu to
  */
-function MainMenu(destId) {
+function MainMenu(destId, imageCache) {
 	var me = this;
 	me.destId = destId;
+	me.images = imageCache;
 
 	/**
 	 * get menu content with ajax and on success draw it
@@ -164,7 +165,12 @@ function MainMenu(destId) {
 					selectCategory += ' > .category';
 				}
 				$.each(val.entries, function (key, val) {
-					$('<div id="drawElement-' + val.id + '" class="drawElement">' + val.name + '</div>').appendTo(selectCategory).bind('click', me.binder.drawElement.clickCb);
+					var selected;
+					selected = '';
+					if ((me.images[data.main.id + '-' + val.id] !== undefined) && me.images[data.main.id + '-' + val.id].draw) {
+						selected = ' selected';
+					}
+					$('<div id="drawElement-' + data.main.id + '-' + val.id + '" class="drawElement' + selected + '">' + val.name + '</div>').appendTo(selectCategory).bind('click', me.binder.drawElement.clickCb);
 				});
 			});
 			$('.categoryTitle').unbind('click');

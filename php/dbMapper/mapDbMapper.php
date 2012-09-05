@@ -155,7 +155,7 @@ class MapDbMapper extends BaseDbMapper {
 					mysql_real_escape_string("%".$pattern."%"));
 		}
 
-		$retValue['main'] = array('name' => 'main', 'id' => 0, 'mode' => $modeString, 'entries' => array());
+		$retValue['main'] = array('name' => 'main', 'id' => $mode['id'], 'mode' => $modeString, 'entries' => array());
 		if ($mode['freeMode'] == 1) {
 			$retValue['main']['mode'] = 'free';
 			return $retValue;

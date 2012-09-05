@@ -3,9 +3,9 @@
  * 
  * @param string mapId: id of the canvas element the map is drawn into 
  */
-function Map(mapId) {
+function Map(mapId, imageCache) {
 	var me = this;
-	me.images = [];
+	me.images = imageCache;
 	me.canvas = document.getElementById(mapId);
 	me.context = me.canvas.getContext('2d');
 	me.deltaFix = [];
@@ -25,6 +25,7 @@ function Map(mapId) {
 	 * 
 	 * @param int dx: x coordinate in pixel of the left border of the image (real pixel read from html)
 	 * @param int dy: y coordinate in pixel of the top border of the image (real pixel read from html)
+	 * @param bool drawInBuffer: if false, imgArray is not drawn in buffer (optional, default: true)
 	 * @return array: modified (real) x and y coordinates passed as parameters 
 	 */
 	this.drawImageToCanvas = function (dx, dy, drawInBuffer) {
@@ -293,7 +294,7 @@ function Map(mapId) {
 		}
 
 		if (imgDb !== undefined) {
-			id = imgDb.id_category + '-' + imgDb.id;
+			id = imgDb.id_mode + '-' + imgDb.id;
 			if (me.images[id] === undefined) {
 				me.images[id] = [];
 				me.images[id].draw = draw;
@@ -335,18 +336,6 @@ function Map(mapId) {
 		idx = 0;
 		iterationCb = iterate;
 		iterate();
-	};
-
-	/**
-	 * 
-	 */
-	this.renderToCanvas = function (width, height, renderFunction) {
-		var buffer;
-		buffer = document.createElement('canvas');
-		buffer.width = width;
-		buffer.height = height;
-		renderFunction(buffer.getContext('2d'));
-		return buffer;
 	};
 
 	/**

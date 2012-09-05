@@ -38,6 +38,9 @@ else if ($_GET['j'] == 'imgById') {
 	$res = $map->selectByUid('mode', $_SESSION['mode']);
 	if ($res) {
 		$res = $map->selectByUid($res['tableName'], $_GET['id']);
+		if (!isset($res['id_mode'])) {
+			$res['id_mode'] = $_SESSION['mode'];
+		}
 	}
 }
 

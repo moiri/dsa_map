@@ -1,10 +1,11 @@
 $(document).ready(function() {
 	// do stuff when DOM is ready
-	var mainMenu, infoMenu, map, imgs, img;
-	map = new Map('map-canvas');
+	var mainMenu, infoMenu, map, img, imageCache;
+	imageCache = [];
+	map = new Map('map-canvas', imageCache);
 	$('#map-canvas').height($(window).height() - 80);
 	$('#map-canvas').width($(window).width());
-	mainMenu = new MainMenu('menu-main');
+	mainMenu = new MainMenu('menu-main', imageCache);
 	mainMenu.setEventBinderDrawElement('click', function () {
 		var url, idElem, draw, cssSelected;
 		cssSelected = 'selected';
@@ -17,7 +18,7 @@ $(document).ready(function() {
 			draw = true;
 		}
 		idElem = $(this).attr('id').split('-');
-		url = "php/ajax/getJson.php?j=imgById&id=" + idElem[1];
+		url = "php/ajax/getJson.php?j=imgById&id=" + idElem[2];
 		$.getJSON(url, function (data) {
 			map.loadImage(data, map.drawImageToCanvas, draw);
 		});
@@ -30,24 +31,9 @@ $(document).ready(function() {
 	img = [];
 	img.picturePath = "map/continental.jpg";
 	img.id = '0';
-	img.id_category = 'main';
+	img.id_mode = 'main';
 	map.loadImage(img, function () {
-		var img, imgs;
 		map.initMapOnCanvas();
-		/*imgs = [];
-		
-		img = [];
-		img.picturePath = "culture/culture_4.png";
-		img.id = '4';
-		img.table = 'culture';
-		imgs.push(img);
-		
-		img = [];
-		img.picturePath = "culture/culture_5.png";
-		img.id = '5';
-		img.table = 'culture';
-		imgs.push(img);
-		map.loadImages(imgs, map.drawImageToCanvas);*/
 		map.enableMoveMap();
 		map.enableZoom();
 	});
