@@ -4,14 +4,33 @@ $(document).ready(function() {
 	map = new Map('map-canvas');
 	$('#map-canvas').height($(window).height() - 80);
 	$('#map-canvas').width($(window).width());
-	mainMenu = new MainMenu('menu-main', map.initMapOnCanvas);
+	mainMenu = new MainMenu('menu-main');
+	mainMenu.setEventBinderDrawElement('click', function () {
+		var url, idElem, draw, cssSelected;
+		cssSelected = 'selected';
+		if ($(this).hasClass(cssSelected)) {
+			$(this).removeClass(cssSelected);
+			draw = false;
+		}
+		else {
+			$(this).addClass(cssSelected);
+			draw = true;
+		}
+		idElem = $(this).attr('id').split('-');
+		url = "php/ajax/getJson.php?j=imgById&id=" + idElem[1];
+		$.getJSON(url, function (data) {
+			map.loadImage(data, map.drawImageToCanvas, draw);
+		});
+	});
+	mainMenu.setEventBinderToggleMenu('click', map.initMapOnCanvas);
 	mainMenu.drawMenu();
-	infoMenu = new InfoMenu('menu-info', map.initMapOnCanvas);
+	infoMenu = new InfoMenu('menu-info');
+	infoMenu.setEventBinderToggleMenu('click', map.initMapOnCanvas);
 	infoMenu.drawMenu();
 	img = [];
 	img.picturePath = "map/continental.jpg";
 	img.id = '0';
-	img.table = 'main';
+	img.id_category = 'main';
 	map.loadImage(img, function () {
 		var img, imgs;
 		map.initMapOnCanvas();

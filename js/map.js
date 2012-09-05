@@ -14,6 +14,11 @@ function Map(mapId) {
 	me.size.iw = 1000;
 	me.size.ih = 1358;
 	me.size.zoom = 1;
+	
+	me.buffer = document.createElement('canvas');
+	me.buffer.width = me.size.iw;
+	me.buffer.height = me.size.ih;
+	me.bufferCtx = me.buffer.getContext('2d');
 
 	/**
 	 * draws image to the canvas (atm only the main map is drawn - hardcoded)
@@ -22,13 +27,16 @@ function Map(mapId) {
 	 * @param int dy: y coordinate in pixel of the top border of the image (real pixel read from html)
 	 * @return array: modified (real) x and y coordinates passed as parameters 
 	 */
-	this.drawImageToCanvas = function (dx, dy) {
+	this.drawImageToCanvas = function (dx, dy, drawInBuffer) {
 		var img, dx, dy, dw, dh, clearCanvas, proj;
 		if (dx === undefined) {
 			dx = me.deltaFix.x;
 		}
 		if (dy === undefined) {
 			dy = me.deltaFix.y;
+		}
+		if (drawInBuffer === undefined) {
+			drawInBuffer = true;
 		}
 		proj = me.tansformToProjection(dx, dy);
 		clearCanvas = false;
@@ -78,16 +86,19 @@ function Map(mapId) {
 			}
 		}
 
-		//img = me.images['main-0']; // TODO: use parameter
 		if (clearCanvas === true) {
 			me.context.clearRect (0, 0, me.size.iw, me.size.ih);
 		}
-		for (var index in me.images) {
-			if (me.images.hasOwnProperty(index)) {
-				img = me.images[index];
-				me.context.drawImage(img, 0, 0, me.size.iw, me.size.ih, proj.x, proj.y, dw, dh);
-			}	
+		
+		if (drawInBuffer) {
+			for (var id in me.images) {
+				if (me.images.hasOwnProperty(id) && (me.images[id].draw)) {
+					img = me.images[id].img;
+					me.bufferCtx.drawImage(img, 0, 0);
+				}	
+			}
 		}
+		me.context.drawImage(me.buffer, 0, 0, me.size.iw, me.size.ih, proj.x, proj.y, dw, dh);
 		return me.tansformToReal(proj.x, proj.y);
 	};
 
@@ -114,7 +125,7 @@ function Map(mapId) {
 					myDelta = [];
 					myDelta.x = me.deltaFix.x - (mPosX - e.pageX);
 					myDelta.y = me.deltaFix.y - (mPosY - e.pageY);
-					delta = me.drawImageToCanvas(myDelta.x, myDelta.y);
+					delta = me.drawImageToCanvas(myDelta.x, myDelta.y, false);
 					// adjust mousedown-position if delta is detected (image is
 					// blocked on canvas border but mouse still moves furter away)
 					mPosX += myDelta.x - delta.x;
@@ -192,7 +203,7 @@ function Map(mapId) {
 			dy = zoomFact * (me.deltaFix.y - y) + yMid;
 
 			// draw image
-			me.deltaFix = me.drawImageToCanvas(dx, dy);
+			me.deltaFix = me.drawImageToCanvas(dx, dy, false);
 		};
 		// bind double-click with left button
 		$('#map-canvas').bind("contextmenu",function(e) {
@@ -213,15 +224,6 @@ function Map(mapId) {
 		$('#map-canvas').bind('dblclick', function (e) {
 			zoom.call(this, e, true);
 		});
-	};
-
-	/**
-	 * initialize the map by loading all image paths from the db
-	 */
-	this.initMap = function () {
-		var url;
-		url = "php/ajax/getJson.php?j=allImg";
-		$.getJSON(url, me.loadImages);
 	};
 
 	/**
@@ -262,15 +264,18 @@ function Map(mapId) {
 			dy = 0;
 		}
 
+		me.size.cw = cw;
+		me.size.ch = ch;
 		me.size.wr = iw / cw;
 		me.size.hr = ih / ch;
 		me.size.dw = dw;
 		me.size.dh = dh;
 		me.size.zoom = 1;
 
-		img = me.images['main-0'];
+		img = me.images['main-0'].img;
 		me.context.clearRect (0, 0, me.size.iw, me.size.ih);
-		me.context.drawImage(img, 0, 0, me.size.iw, me.size.ih, dx, dy, dw, dh);
+		me.bufferCtx.drawImage(img, 0, 0);
+		me.context.drawImage(me.buffer, 0, 0, me.size.iw, me.size.ih, dx, dy, dw, dh);
 		me.deltaFix = me.tansformToReal(dx, dy);
 	};
 
@@ -279,20 +284,28 @@ function Map(mapId) {
 	 * 
 	 * @param array imgDb: an array containing img information [id, table, picturePath]
 	 * @param function cb: callback function to be executed after the img is loaded
+	 * @param bool draw: if true, loaded image will be drawn, else it will be ignored (-> during the next draw step deleted on canvas) (optionla, default = true)
 	 */
-	this.loadImage = function (imgDb, cb) {
+	this.loadImage = function (imgDb, cb, draw) {
 		var img, id;
+		if (draw === undefined) {
+			draw = true;
+		}
+
 		if (imgDb !== undefined) {
-			id = imgDb.table + '-' + imgDb.id;
+			id = imgDb.id_category + '-' + imgDb.id;
 			if (me.images[id] === undefined) {
+				me.images[id] = [];
+				me.images[id].draw = draw;
 				img = new Image();
 				img.src = 'img/' + imgDb.picturePath;
 				img.onload = function() {
-					me.images[id] = img;
+					me.images[id].img = img;
 					cb.call(me);
 				}
 			}
 			else {
+				me.images[id].draw = draw;
 				cb.call(me);
 			}
 		}
@@ -322,6 +335,18 @@ function Map(mapId) {
 		idx = 0;
 		iterationCb = iterate;
 		iterate();
+	};
+
+	/**
+	 * 
+	 */
+	this.renderToCanvas = function (width, height, renderFunction) {
+		var buffer;
+		buffer = document.createElement('canvas');
+		buffer.width = width;
+		buffer.height = height;
+		renderFunction(buffer.getContext('2d'));
+		return buffer;
 	};
 
 	/**

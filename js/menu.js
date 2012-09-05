@@ -5,6 +5,16 @@ function Menu() {
 	var me = this;
 	me.mode;
 	me.eyeWidth = 22;
+	me.binder = [];
+	me.binder.drawElement = [];
+	me.binder.drawElement.clickCb = function () {
+		alert('no drawElement click event binded, use "setEventBinderDrawElement" to define the event');
+	};
+	
+	me.binder.toggleMenu = [];
+	me.binder.toggleMenu.clickCb = function () {
+		alert('no toggleMenu click event binded, use "setEventBinderToggleMenu" to define the event');
+	};
 
 	/**
 	 * bind click elemnt to eye hiding and showing the menu
@@ -13,7 +23,7 @@ function Menu() {
 	 * @param obj eyeAttr: object definig animate properties of the eye button
 	 * @param obj midAttr: object definig animate properties of the mid column
 	 */
-	this.bindEye = function (id, eyeAttr, midAttr, cb) {
+	this.bindEye = function (id, eyeAttr, midAttr) {
 		// bind show and hide clicks
 		$('#button-' + id).unbind('click');
 		$('#button-' + id).bind('click', function () {
@@ -26,7 +36,7 @@ function Menu() {
 					width: $('#map-canvas').width() - me.width + me.eyeWidth + delta + 'px',
 				}, 'fast', 'swing');
 				$('.midColumn').animate(midAttr.open,'fast', 'swing', function () {
-					$('#' + id).fadeIn('fast', 'swing', cb);
+					$('#' + id).fadeIn('fast', 'swing', me.binder.toggleMenu.clickCb);
 				});
 			}
 			else {
@@ -35,7 +45,7 @@ function Menu() {
 					$('#map-canvas').animate({
 						width: $('#map-canvas').width() + me.width - me.eyeWidth - delta + 'px',
 					}, 'fast', 'swing');
-					$('.midColumn').animate(midAttr.close, 'fast', 'swing', cb);
+					$('.midColumn').animate(midAttr.close, 'fast', 'swing', me.binder.toggleMenu.clickCb);
 				});
 			}
 			$(eye).toggleClass('close');
@@ -45,11 +55,25 @@ function Menu() {
 	/**
 	 * 
 	 */
-	this.bindEntry = function (idPrefix, cb) {
-		$().unbind('click');
-		$().bind('click', function () {
-			
-		});
+	this.setEventBinderDrawElement = function (eStr, cb) {
+		if (eStr === 'click') {
+			me.binder.drawElement.clickCb = cb;
+		}
+		else {
+			alert('setEventBinderDrawElement: bad eStr');
+		}
+	};
+	
+	/**
+	 * 
+	 */
+	this.setEventBinderToggleMenu = function (eStr, cb) {
+		if (eStr === 'click') {
+			me.binder.toggleMenu.clickCb = cb;
+		}
+		else {
+			alert('setEventBinderToggleMenu: bad eStr');
+		}
 	};
 
 	/**
@@ -88,12 +112,10 @@ function Menu() {
  * MainMenu class, child of Menu class
  * 
  * @param string destId: destination id to draw main menu to
- * @param func cb: this callback function is executed onclick on the eye
  */
-function MainMenu(destId, cb) {
+function MainMenu(destId) {
 	var me = this;
 	me.destId = destId;
-	me.cDrawCb = cb;
 
 	/**
 	 * get menu content with ajax and on success draw it
@@ -130,6 +152,7 @@ function MainMenu(destId, cb) {
 		else {
 			mode = data.main.mode;
 			$('#' + me.destId + '-search').show();
+			$('[id^="drawElement-"]').unbind();
 			$.each(data, function (key, val) {
 				var selectCategory;
 				selectCategory = selectContent;
@@ -141,7 +164,7 @@ function MainMenu(destId, cb) {
 					selectCategory += ' > .category';
 				}
 				$.each(val.entries, function (key, val) {
-					$(selectCategory).append('<div id="entry-' + val.id + '" class="entry">' + val.name + '</div>');
+					$('<div id="drawElement-' + val.id + '" class="drawElement">' + val.name + '</div>').appendTo(selectCategory).bind('click', me.binder.drawElement.clickCb);
 				});
 			});
 			$('.categoryTitle').unbind('click');
@@ -277,7 +300,7 @@ function MainMenu(destId, cb) {
 
 		me.setWidth($('#' + destId).width() + 50);
 		$('#map-canvas').width($('#map-canvas').width() - me.width - me.eyeWidth);
-		me.bindEye(me.destId, eyeAttr, midAttr, me.cDrawCb);
+		me.bindEye(me.destId, eyeAttr, midAttr);
 	};
 }
 
@@ -289,10 +312,9 @@ MainMenu.prototype = new Menu();
  * @param string destId: destination id to draw info menu to
  * @param func cb: this callback function is executed onclick on the eye
  */
-function InfoMenu(destId, cb) {
+function InfoMenu(destId) {
 	var me = this;
 	me.destId = destId;
-	me.cDrawCb = cb;
 
 	/**
 	 * draw the menu
@@ -320,7 +342,7 @@ function InfoMenu(destId, cb) {
 
 		me.setWidth($('#' + destId).width());
 		$('#map-canvas').width($('#map-canvas').width() - me.width - me.eyeWidth);
-		me.bindEye(me.destId, eyeAttr, midAttr, me.cDrawCb);
+		me.bindEye(me.destId, eyeAttr, midAttr);
 	};
 }
 

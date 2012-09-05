@@ -111,9 +111,13 @@
 	margin-left:10px;
 }
 
-.mainMenu * .entry {
+.mainMenu * .drawElement {
 	text-indent:-10px;
 	margin-left:10px;
+}
+
+.mainMenu * .drawElement.selected {
+	color:#CC0000;
 }
 
 .infoMenu {

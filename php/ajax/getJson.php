@@ -33,6 +33,13 @@ else if ($_GET['j'] == 'tab') {
 else if ($_GET['j'] == 'allImg') {
 	$res = $map->getAllImgs();
 }
+else if ($_GET['j'] == 'imgById') {
+	// get mode information
+	$res = $map->selectByUid('mode', $_SESSION['mode']);
+	if ($res) {
+		$res = $map->selectByUid($res['tableName'], $_GET['id']);
+	}
+}
 
 if ($res) {
 	print json_encode($res);
