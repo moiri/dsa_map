@@ -17,6 +17,7 @@
 <script src='js/main.js' type='text/javascript'></script>
 <script src='js/menu.js' type='text/javascript'></script>
 <script src='js/map.js' type='text/javascript'></script>
+<style type='text/css'></style>
 </head>
 <body>
 	<div id="content">

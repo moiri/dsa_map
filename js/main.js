@@ -18,15 +18,41 @@ $(document).ready(function() {
 			draw = true;
 		}
 		idElem = $(this).attr('id').split('-');
+		/*$('[id|="mode-0"][id$="-' + idElem[1] + '"]').each(function () {
+			var tabId, i;
+			if (draw) {
+				$(this).addClass(cssSelected);
+			}
+			else {
+				$(this).removeClass(cssSelected);
+			}
+			tabId = $(this).attr('id').split('-');
+			for (i = 2; i < tabId.length-1; i++) {
+				$('[id|="mode-0"][id$="-' + tabId[i] + '"]').each(function () {
+					if (!$(this).hasClass(cssSelected) && draw) {
+						$(this).addClass(cssSelected);
+					}
+					else if ($(this).hasClass(cssSelected) && !draw) {
+						$(this).removeClass(cssSelected);
+					}
+				});
+			}
+		});*/
 		url = "php/ajax/getJson.php?j=imgById&id=" + idElem[2];
 		$.getJSON(url, function (data) {
 			map.loadImage(data, map.drawImageToCanvas, draw);
 		});
 	});
-	mainMenu.setEventBinderToggleMenu('click', map.initMapOnCanvas);
+	mainMenu.setEventBinderToggleMenu('click', function () {
+		map.initMapOnCanvas();
+		map.drawImageToCanvas();
+	});
 	mainMenu.drawMenu();
 	infoMenu = new InfoMenu('menu-info');
-	infoMenu.setEventBinderToggleMenu('click', map.initMapOnCanvas);
+	infoMenu.setEventBinderToggleMenu('click', function () {
+		map.initMapOnCanvas();
+		map.drawImageToCanvas();
+	});
 	infoMenu.drawMenu();
 	img = [];
 	img.picturePath = "map/continental.jpg";

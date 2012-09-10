@@ -161,8 +161,8 @@ function MainMenu(destId, imageCache) {
 					$(selectContent).append('<div id="category-' + val.id + '" class="categoryTitle"></div>');
 					$('#category-' + val.id).append('<div class="categoryEye"></div>');
 					$('#category-' + val.id).append('<div class="categoryTitleText">' + key + '</div>');
-					$(selectContent).append('<div class="category"></div>');
-					selectCategory += ' > .category';
+					$(selectContent).append('<div id="category-' + val.id + '-entries" class="category"></div>');
+					selectCategory += ' > #category-' + val.id + '-entries';
 				}
 				$.each(val.entries, function (key, val) {
 					var selected;
@@ -233,15 +233,21 @@ function MainMenu(destId, imageCache) {
 			}).appendTo('#' + destId);
 			$.each(menu, function(key, val) {
 				// iterate through tab elements
-				var cssClass;
+				var cssClass, imgCssClass;
 				cssClass = 'tab l' + lvl;
 				if ((key === 0) && (lvl === 1)) {
 					cssClass += ' active';
 				}
+				imgCssClass = "tabModeId_" + val.id;
+				$('html > head > style').append(" ." + imgCssClass + " { background: url('img/" + val.iconPath + "') no-repeat scroll 50% top; }\n");
+				$('html > head > style').append(" ." + imgCssClass + ".selected { background: url('img/" + val.iconPath.replace(/\./g, "_sel.") + "') no-repeat scroll 50% top; }\n");
+				$('html > head > style').append(" ." + imgCssClass + ":hover { background: url('img/" + val.iconPath.replace(/\./g, "_sel.") + "') no-repeat scroll 50% top; }\n");
+				cssClass += ' ' + imgCssClass;
 				$('<div/>', {
 					'id': 'mode-' + modeIdIt + '-' + val.id,
-					'class': cssClass,
-					html: '<img src="img/' + val.iconPath + '" alt="' + val.name + '" title="' + val.name + '"/>'
+					'class': cssClass
+					//'style': "background: url('img/" + val.iconPath + "') no-repeat scroll 50% top;"
+					//html: '<img src="img/' + val.iconPath + '" alt="' + val.name + '" title="' + val.name + '"/>'
 				}).appendTo('#' + myId);
 
 				if (val.submenu !== undefined) {

@@ -114,9 +114,18 @@
 .mainMenu * .drawElement {
 	text-indent:-10px;
 	margin-left:10px;
+	cursor:pointer;
+}
+
+.mainMenu * .drawElement:hover {
+	color:#550000;
 }
 
 .mainMenu * .drawElement.selected {
+	color:#990000;
+}
+
+.mainMenu * .drawElement.selected:hover {
 	color:#CC0000;
 }
 

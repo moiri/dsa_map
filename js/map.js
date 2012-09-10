@@ -23,8 +23,8 @@ function Map(mapId, imageCache) {
 	/**
 	 * draws image to the canvas (atm only the main map is drawn - hardcoded)
 	 * 
-	 * @param int dx: x coordinate in pixel of the left border of the image (real pixel read from html)
-	 * @param int dy: y coordinate in pixel of the top border of the image (real pixel read from html)
+	 * @param int dx: x coordinate in pixel of the left border of the image (real pixel read from html) (optional, default: last position)
+	 * @param int dy: y coordinate in pixel of the top border of the image (real pixel read from html) (optional, default: last position)
 	 * @param bool drawInBuffer: if false, imgArray is not drawn in buffer (optional, default: true)
 	 * @return array: modified (real) x and y coordinates passed as parameters 
 	 */
@@ -274,9 +274,9 @@ function Map(mapId, imageCache) {
 		me.size.zoom = 1;
 
 		img = me.images['main-0'].img;
-		me.context.clearRect (0, 0, me.size.iw, me.size.ih);
 		me.bufferCtx.drawImage(img, 0, 0);
-		me.context.drawImage(me.buffer, 0, 0, me.size.iw, me.size.ih, dx, dy, dw, dh);
+		me.context.clearRect (0, 0, me.size.iw, me.size.ih);
+		me.context.drawImage(img, 0, 0, me.size.iw, me.size.ih, dx, dy, dw, dh);
 		me.deltaFix = me.tansformToReal(dx, dy);
 	};
 
