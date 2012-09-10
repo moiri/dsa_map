@@ -1,16 +1,23 @@
 $(document).ready(function() {
 	// do stuff when DOM is ready
-	var mainMenu, infoMenu, map, img, cache, activeTab;
+	var mainMenu, infoMenu, map, img, cache, activeTab, cssSelected;
 	cache = [];
 	cache.images = [];
 	cache.activeElems = [];
+	cssSelected = 'selected';
+	img = [];
+	img.picturePath = "map/continental.jpg";
+	img.id = '0';
+	img.id_mode = 'main';
+	
 	map = new Map('map-canvas', cache);
 	$('#map-canvas').height($(window).height() - 80);
 	$('#map-canvas').width($(window).width());
+	
+	// mainMenu
 	mainMenu = new MainMenu('menu-main', cache);
 	mainMenu.setEventBinderDrawElement('click', function () {
-		var url, idElem, draw, cssSelected;
-		cssSelected = 'selected';
+		var url, idElem, draw;
 		if ($(this).hasClass(cssSelected)) {
 			$(this).removeClass(cssSelected);
 			draw = false;
@@ -62,21 +69,31 @@ $(document).ready(function() {
 			map.loadImage(data, map.drawImageToCanvas, draw);
 		});
 	});
+	mainMenu.setEventBinderFreeMode('click', function () {
+		$('[id|="mode"]').removeClass(cssSelected);
+		cache.activeElems = [];
+		for (var id in this.images) {
+			if (this.images.hasOwnProperty(id) && (id !== img.id_mode + "-" + img.id)) {
+				this.images[id].draw = false;
+			}
+		}
+		map.drawImageToCanvas();
+	});
 	mainMenu.setEventBinderToggleMenu('click', function () {
 		map.initMapOnCanvas();
 		map.drawImageToCanvas();
 	});
 	mainMenu.drawMenu();
+	
+	// infoMenu
 	infoMenu = new InfoMenu('menu-info');
 	infoMenu.setEventBinderToggleMenu('click', function () {
 		map.initMapOnCanvas();
 		map.drawImageToCanvas();
 	});
 	infoMenu.drawMenu();
-	img = [];
-	img.picturePath = "map/continental.jpg";
-	img.id = '0';
-	img.id_mode = 'main';
+	
+	// init map
 	map.loadImage(img, function () {
 		map.initMapOnCanvas();
 		map.enableMoveMap();

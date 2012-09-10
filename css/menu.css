@@ -20,11 +20,11 @@
 .tab {
 	position:relative;
 	z-index:0;
+	cursor:pointer;
 }
 
-.tab:hover, .tab.active {
+.tab.active {
 	z-index:2;
-	cursor:pointer;
 }
 
 .tab.l0 {
@@ -55,6 +55,10 @@
 	height:55px;
 }
 
+.mainMenu * .tab.l1:hover {
+	margin-top:-48px;
+}
+
 .mainMenu * .tab.l2 {
 	margin-left:-45px;
 	padding:2px 0;
@@ -62,11 +66,19 @@
 	height:45px;
 }
 
+.mainMenu * .tab.l2:hover {
+	margin-left:-48px;
+}
+
 .mainMenu * .tab.l3 {
 	margin-left:-40px;
 	padding:2px 0;
 	width:50px;
 	height:40px;
+}
+
+.mainMenu * .tab.l3:hover {
+	margin-left:-42px;
 }
 
 .mainMenu > .tabContTitle {

@@ -118,6 +118,10 @@ function MainMenu(destId, cache) {
 	me.destId = destId;
 	me.images = cache.images;
 	me.activeElems = cache.activeElems;
+	me.binder.freeMode = [];
+	me.binder.freeMode.clickCb = function () {
+		alert('no freeMode click event binded, use "setEventBinderFreeMode" to define the event');
+	};
 
 	/**
 	 * get menu content with ajax and on success draw it
@@ -148,6 +152,7 @@ function MainMenu(destId, cache) {
 			return;
 		}
 		else if (data.main.mode === 'free') {
+			me.binder.freeMode.clickCb.call(me);
 			$(selectContent).append('<div>free mode</div>');
 			return;
 		}
@@ -249,7 +254,8 @@ function MainMenu(destId, cache) {
 				imgCssClass = "tabModeId_" + val.id;
 				$('html > head > style').append(" ." + imgCssClass + " { background: url('img/" + val.iconPath + "') no-repeat scroll 50% top; }\n");
 				$('html > head > style').append(" ." + imgCssClass + ".selected { background: url('img/" + val.iconPath.replace(/\./g, "_sel.") + "') no-repeat scroll 50% top; }\n");
-				$('html > head > style').append(" ." + imgCssClass + ":hover { background: url('img/" + val.iconPath.replace(/\./g, "_sel.") + "') no-repeat scroll 50% top; }\n");
+				//$('html > head > style').append(" ." + imgCssClass + ":hover { background: url('img/" + val.iconPath.replace(/\./g, "_hov.") + "') no-repeat scroll 50% top; }\n");
+				//$('html > head > style').append(" ." + imgCssClass + ".selected:hover { background: url('img/" + val.iconPath.replace(/\./g, "_hov_sel.") + "') no-repeat scroll 50% top; }\n");
 				cssClass += ' ' + imgCssClass;
 				$('<div/>', {
 					'id': 'mode-' + modeIdIt + '-' + val.id,
@@ -319,6 +325,18 @@ function MainMenu(destId, cache) {
 		me.setWidth($('#' + destId).width() + 50);
 		$('#map-canvas').width($('#map-canvas').width() - me.width - me.eyeWidth);
 		me.bindEye(me.destId, eyeAttr, midAttr);
+	};
+	
+	/**
+	 * 
+	 */
+	this.setEventBinderFreeMode = function (eStr, cb) {
+		if (eStr === 'click') {
+			me.binder.freeMode.clickCb = cb;
+		}
+		else {
+			alert('setEventBinderFreeMode: bad eStr');
+		}
 	};
 }
 

@@ -272,11 +272,6 @@ function Map(mapId, cache) {
 		me.size.dw = dw;
 		me.size.dh = dh;
 		me.size.zoom = 1;
-
-		img = me.images['main-0'].img;
-		me.bufferCtx.drawImage(img, 0, 0);
-		me.context.clearRect (0, 0, me.size.iw, me.size.ih);
-		me.context.drawImage(img, 0, 0, me.size.iw, me.size.ih, dx, dy, dw, dh);
 		me.deltaFix = me.tansformToReal(dx, dy);
 	};
 
