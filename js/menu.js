@@ -113,10 +113,11 @@ function Menu() {
  * 
  * @param string destId: destination id to draw main menu to
  */
-function MainMenu(destId, imageCache) {
+function MainMenu(destId, cache) {
 	var me = this;
 	me.destId = destId;
-	me.images = imageCache;
+	me.images = cache.images;
+	me.activeElems = cache.activeElems;
 
 	/**
 	 * get menu content with ajax and on success draw it
@@ -155,14 +156,15 @@ function MainMenu(destId, imageCache) {
 			$('#' + me.destId + '-search').show();
 			$('[id^="drawElement-"]').unbind();
 			$.each(data, function (key, val) {
-				var selectCategory;
-				selectCategory = selectContent;
+				var selectCategoryEntries, selectCategory;
+				selectCategoryEntries = selectContent;
 				if ((key !== 'main') && (mode !== 'search')) {
 					$(selectContent).append('<div id="category-' + val.id + '" class="categoryTitle"></div>');
-					$('#category-' + val.id).append('<div class="categoryEye"></div>');
-					$('#category-' + val.id).append('<div class="categoryTitleText">' + key + '</div>');
+					selectCategory = '#category-' + val.id;
+					$(selectCategory).append('<div class="categoryEye"></div>');
+					$(selectCategory).append('<div class="categoryTitleText">' + key + '</div>');
 					$(selectContent).append('<div id="category-' + val.id + '-entries" class="category"></div>');
-					selectCategory += ' > #category-' + val.id + '-entries';
+					selectCategoryEntries += ' > ' + selectCategory + '-entries';
 				}
 				$.each(val.entries, function (key, val) {
 					var selected;
@@ -170,7 +172,13 @@ function MainMenu(destId, imageCache) {
 					if ((me.images[data.main.id + '-' + val.id] !== undefined) && me.images[data.main.id + '-' + val.id].draw) {
 						selected = ' selected';
 					}
-					$('<div id="drawElement-' + data.main.id + '-' + val.id + '" class="drawElement' + selected + '">' + val.name + '</div>').appendTo(selectCategory).bind('click', me.binder.drawElement.clickCb);
+					$('<div id="drawElement-' + data.main.id + '-' + val.id + '" class="drawElement' + selected + '">' + val.name + '</div>').appendTo(selectCategoryEntries).bind('click', me.binder.drawElement.clickCb);
+					if ((me.activeElems[data.main.id] !== undefined) && (me.activeElems[data.main.id].counter > 0)) {
+						if ((me.activeElems[data.main.id].elements[val.id] !== undefined) && (me.activeElems[data.main.id].elements[val.id])) {
+							$(selectCategory).children('div.categoryEye').addClass('open');
+							$(selectCategory).next().show();
+						}
+					}
 				});
 			});
 			$('.categoryTitle').unbind('click');
@@ -246,8 +254,6 @@ function MainMenu(destId, imageCache) {
 				$('<div/>', {
 					'id': 'mode-' + modeIdIt + '-' + val.id,
 					'class': cssClass
-					//'style': "background: url('img/" + val.iconPath + "') no-repeat scroll 50% top;"
-					//html: '<img src="img/' + val.iconPath + '" alt="' + val.name + '" title="' + val.name + '"/>'
 				}).appendTo('#' + myId);
 
 				if (val.submenu !== undefined) {

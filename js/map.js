@@ -3,9 +3,9 @@
  * 
  * @param string mapId: id of the canvas element the map is drawn into 
  */
-function Map(mapId, imageCache) {
+function Map(mapId, cache) {
 	var me = this;
-	me.images = imageCache;
+	me.images = cache.images;
 	me.canvas = document.getElementById(mapId);
 	me.context = me.canvas.getContext('2d');
 	me.deltaFix = [];
@@ -93,7 +93,7 @@ function Map(mapId, imageCache) {
 		
 		if (drawInBuffer) {
 			for (var id in me.images) {
-				if (me.images.hasOwnProperty(id) && (me.images[id].draw)) {
+				if (me.images.hasOwnProperty(id) && me.images[id].draw && (me.images[id].img !== null)) {
 					img = me.images[id].img;
 					me.bufferCtx.drawImage(img, 0, 0);
 				}	
@@ -298,6 +298,7 @@ function Map(mapId, imageCache) {
 			if (me.images[id] === undefined) {
 				me.images[id] = [];
 				me.images[id].draw = draw;
+				me.images[id].img = null;
 				img = new Image();
 				img.src = 'img/' + imgDb.picturePath;
 				img.onload = function() {
