@@ -3,21 +3,27 @@ $(document).ready(function() {
 	var mainMenu, infoMenu, map, img, cache, activeTab, cssSelected;
 	cache = [];
 	cache.images = [];
+	cache.images.img = [];
+	cache.images.draw = [];
 	cache.activeElems = [];
+	cache.activeElems.mode = [];
+	cache.activeElems.counter = 0;
 	cssSelected = 'selected';
 	img = [];
 	img.picturePath = "map/continental.jpg";
 	img.id = '0';
-	img.id_mode = 'main';
-	
+	img.mode = [];
+	img.mode.id = 'main';
+	img.mode.drawOrder = '0';
+
 	map = new Map('map-canvas', cache);
 	$('#map-canvas').height($(window).height() - 80);
 	$('#map-canvas').width($(window).width());
-	
-	// mainMenu
+
+	// create and define mainMenu
 	mainMenu = new MainMenu('menu-main', cache);
-	mainMenu.setEventBinderDrawElement('click', function () {
-		var url, idElem, draw;
+	mainMenu.setEventBinderDrawElement('click', function (selfObj) {
+		var url, idElem, draw, activeModeId, activeModeArr, activeElementId, activeElementName, hasActiveElems, tabModeId;
 		if ($(this).hasClass(cssSelected)) {
 			$(this).removeClass(cssSelected);
 			draw = false;
@@ -27,38 +33,68 @@ $(document).ready(function() {
 			draw = true;
 		}
 		idElem = $(this).attr('id').split('-');
-		
+		activeModeId = idElem[1];
+		activeElementId = idElem[2];
+		activeElementName = $(this).text();
+
 		// highlight tabs and elements if active
-		$('[id|="mode-0"][id$="-' + idElem[1] + '"]').each(function () {
-			var tabId, i;
+		$('[id|="mode-0"][id$="-' + activeModeId + '"]').each(function () {
+			var tabId, i, j;
 			tabId = $(this).attr('id').split('-');
-			for (i = 2; i < tabId.length; i++) {
-				$('[id|="mode-0"][id$="-' + tabId[i] + '"]').each(function () {
-					if ($(this).hasClass(cssSelected)) {
-						if (draw) {
-							// draw element and tab already active
-							cache.activeElems[tabId[i]].elements[idElem[2]] = true;
-							cache.activeElems[tabId[i]].counter++;
-						}
-						else {
-							cache.activeElems[tabId[i]].elements[idElem[2]] = false;
-							cache.activeElems[tabId[i]].counter--;
-							if (cache.activeElems[tabId[i]].counter === 0) {
-								// remove last active element
-								$(this).removeClass(cssSelected);
-							}
+			tabId.shift();
+			// build activeElements Array
+			activeModeArr = [];
+			activeModeArr[1] = [];
+			if ((activeModeArr[1].mode = selfObj.activeElems.mode) === undefined) {
+				activeModeArr[1].mode = [];
+			}
+			for (i = 1; i < tabId.length; i++) {
+				tabModeId = tabId[i];
+				if (activeModeArr[i].mode[tabModeId] === undefined) {
+					activeModeArr[i].mode[tabModeId] = [];
+					activeModeArr[i].mode[tabModeId].id = tabModeId;
+					activeModeArr[i].mode[tabModeId].counter = 0;
+				}
+				if (tabModeId === activeModeId) {
+					// we are on the last tab level (has drawElements)
+					if (activeModeArr[i].mode[tabModeId].elements === undefined) {
+						activeModeArr[i].mode[tabModeId].elements = [];
+					}
+					if (draw) {
+						activeModeArr[i].mode[tabModeId].elements[activeElementId] = activeElementName;
+						selfObj.activeElems.counter++;
+						for (j = 1; j <= i; j++) {
+							activeModeArr[j].mode[tabId[j]].counter++;
 						}
 					}
-					else if (draw) {
-						// draw element and tab not yet active
-						$(this).addClass(cssSelected);
-						if (cache.activeElems[tabId[i]] === undefined) {
-							cache.activeElems[tabId[i]] = [];
-							cache.activeElems[tabId[i]].elements = [];
+					else {
+						activeModeArr[i].mode[tabModeId].elements.splice(activeElementId, 1);
+						selfObj.activeElems.counter--;
+						for (j = 1; j <= i; j++) {
+							activeModeArr[j].mode[tabId[j]].counter--;
 						}
+					}
+				}
+				else {
+					// tab without drawElements
+					if (activeModeArr[i].mode[tabModeId].mode === undefined) {
+						activeModeArr[i].mode[tabModeId].mode = [];
+					}
+				}
+				activeModeArr[i+1] = [];
+				activeModeArr[i+1].mode = activeModeArr[i].mode[tabModeId].mode;
+			}
 
-						cache.activeElems[tabId[i]].elements[idElem[2]] = true;
-						cache.activeElems[tabId[i]].counter = 1;
+			// handle tab css selected class
+			for (i = 1; i < tabId.length; i++) {
+				tabModeId = tabId[i];
+				$('[id|="mode-0"][id$="-' + tabModeId + '"]').each(function () {
+					activeModeArr[i].mode[tabModeId].name = $(this).attr('title');
+					if (activeModeArr[i].mode[tabModeId].counter > 0) {
+						$(this).addClass(cssSelected);
+					}
+					else {
+						$(this).removeClass(cssSelected);
 					}
 				});
 			}
@@ -70,11 +106,12 @@ $(document).ready(function() {
 		});
 	});
 	mainMenu.setEventBinderFreeMode('click', function () {
+		var id;
 		$('[id|="mode"]').removeClass(cssSelected);
-		cache.activeElems = [];
-		for (var id in this.images) {
-			if (this.images.hasOwnProperty(id) && (id !== img.id_mode + "-" + img.id)) {
-				this.images[id].draw = false;
+		this.activeElems.mode = [];
+		for (id in this.images.draw) {
+			if (this.images.draw.hasOwnProperty(id) && (id !== img.mode.id + "-" + img.id)) {
+				this.images.draw[id] = false;
 			}
 		}
 		map.drawImageToCanvas();
@@ -83,20 +120,23 @@ $(document).ready(function() {
 		map.initMapOnCanvas();
 		map.drawImageToCanvas();
 	});
-	mainMenu.drawMenu();
-	
-	// infoMenu
+
+	// create and define infoMenu
 	infoMenu = new InfoMenu('menu-info');
 	infoMenu.setEventBinderToggleMenu('click', function () {
 		map.initMapOnCanvas();
 		map.drawImageToCanvas();
 	});
-	infoMenu.drawMenu();
-	
-	// init map
-	map.loadImage(img, function () {
-		map.initMapOnCanvas();
-		map.enableMoveMap();
-		map.enableZoom();
+
+	mainMenu.drawMenu(function () {
+		infoMenu.drawMenu(function () {
+			// init map
+			map.loadImage(img, function () {
+				map.initMapOnCanvas();
+				map.enableMoveMap();
+				map.enableZoom();
+				map.drawImageToCanvas();
+			});
+		});
 	});
 });

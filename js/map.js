@@ -42,7 +42,7 @@ function Map(mapId, cache) {
 		proj = me.tansformToProjection(dx, dy);
 		clearCanvas = false;
 		dw = me.size.dw * me.size.zoom;	// calculate width of rendered image
-		dh = me.size.dh * me.size.zoom;	// calculate height of rendered image
+		dh = me.size.dh * me.size.zoom;	// me.imaged.drawcalculate height of rendered image
 
 		if (me.size.iw < dw) {
 			// canvas is smaller than image in canvas
@@ -92,11 +92,24 @@ function Map(mapId, cache) {
 		}
 		
 		if (drawInBuffer) {
-			for (var id in me.images) {
-				if (me.images.hasOwnProperty(id) && me.images[id].draw && (me.images[id].img !== null)) {
-					img = me.images[id].img;
-					me.bufferCtx.drawImage(img, 0, 0);
-				}	
+			me.images.img.sort();
+			for (var drawOrderMode in me.images.img) {
+				if (me.images.img.hasOwnProperty(drawOrderMode)) {
+					me.images.img[drawOrderMode].sort();
+					for (var drawOrderElem in me.images.img[drawOrderMode]) {
+						if (me.images.img[drawOrderMode].hasOwnProperty(drawOrderElem)) {
+							me.images.img[drawOrderMode][drawOrderElem].sort();
+							for (var id in me.images.img[drawOrderMode][drawOrderElem]) {
+								if (me.images.img[drawOrderMode][drawOrderElem].hasOwnProperty(id) &&
+										 me.images.draw[id] &&
+										 (me.images.img[drawOrderMode][drawOrderElem][id] !== null)) {
+									img = me.images.img[drawOrderMode][drawOrderElem][id];
+									me.bufferCtx.drawImage(img, 0, 0);
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 		me.context.drawImage(me.buffer, 0, 0, me.size.iw, me.size.ih, proj.x, proj.y, dw, dh);
@@ -228,7 +241,7 @@ function Map(mapId, cache) {
 	};
 
 	/**
-	 * first draw of map on the canvas element (calculate projection aspects, etc)
+	 * prepare coordinates to be able to draw the map on the canvas element (calculate projection aspects, etc)
 	 */
 	this.initMapOnCanvas = function () {
 		var iw, ih, ia, cw, ch, ca, dw, dh, dx, dy, ratio, img;
@@ -265,8 +278,6 @@ function Map(mapId, cache) {
 			dy = 0;
 		}
 
-		me.size.cw = cw;
-		me.size.ch = ch;
 		me.size.wr = iw / cw;
 		me.size.hr = ih / ch;
 		me.size.dw = dw;
@@ -283,26 +294,33 @@ function Map(mapId, cache) {
 	 * @param bool draw: if true, loaded image will be drawn, else it will be ignored (-> during the next draw step deleted on canvas) (optionla, default = true)
 	 */
 	this.loadImage = function (imgDb, cb, draw) {
-		var img, id;
+		var img, id, id_drawOrderMode, drawOrderElem;
 		if (draw === undefined) {
 			draw = true;
 		}
 
 		if (imgDb !== undefined) {
-			id = imgDb.id_mode + '-' + imgDb.id;
-			if (me.images[id] === undefined) {
-				me.images[id] = [];
-				me.images[id].draw = draw;
-				me.images[id].img = null;
+			id = imgDb.mode.id + '-' + imgDb.id;
+			drawOrderMode = 'drawOrderMode-' + imgDb.mode.drawOrder;
+			drawOrderElem = 'drawOrderElem-';
+			drawOrderElem += (imgDb.drawOrder !== undefined) ? imgDb.drawOrder : '1';
+			me.images.draw[id] = draw;
+			if (me.images.img[drawOrderMode] === undefined) {
+				me.images.img[drawOrderMode] = [];
+			}
+			if (me.images.img[drawOrderMode][drawOrderElem] === undefined) {
+				me.images.img[drawOrderMode][drawOrderElem] = [];
+			}
+			if (me.images.img[drawOrderMode][drawOrderElem][id] === undefined) {
+				me.images.img[drawOrderMode][drawOrderElem][id] = null;
 				img = new Image();
 				img.src = 'img/' + imgDb.picturePath;
 				img.onload = function() {
-					me.images[id].img = img;
+					me.images.img[drawOrderMode][drawOrderElem][id] = img;
 					cb.call(me);
 				}
 			}
 			else {
-				me.images[id].draw = draw;
 				cb.call(me);
 			}
 		}

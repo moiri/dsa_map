@@ -24,6 +24,14 @@ if ($_GET['j'] == 'content') {
 			$pattern = $_GET['pattern'];
 		}
 		$res = $map->getMainMenuEntries($res, $pattern);
+		$cnt = 1;
+		$modeTree = array();
+		while (isset($_SESSION['modeTree'][$cnt])) {
+			$modeTree[$cnt] = $_SESSION['modeTree'][$cnt];
+			$cnt++;
+		}
+		$res['main']['modeIdTree'] = $modeTree;
+		$res['main']['activeMode'] = $_SESSION['mode'];
 	}
 }
 else if ($_GET['j'] == 'tab') {
@@ -35,11 +43,14 @@ else if ($_GET['j'] == 'allImg') {
 }
 else if ($_GET['j'] == 'imgById') {
 	// get mode information
-	$res = $map->selectByUid('mode', $_SESSION['mode']);
-	if ($res) {
-		$res = $map->selectByUid($res['tableName'], $_GET['id']);
-		if (!isset($res['id_mode'])) {
-			$res['id_mode'] = $_SESSION['mode'];
+	$mode = $map->selectByUid('mode', $_SESSION['mode']);
+	if ($mode) {
+		$res = $map->selectByUid($mode['tableName'], $_GET['id']);
+		if (!isset($res['mode'])) {
+			$res['mode'] = array(
+					'id' => $mode['id'],
+					'drawOrder' => $mode['drawOrder']
+					);
 		}
 	}
 }

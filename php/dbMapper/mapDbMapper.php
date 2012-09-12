@@ -84,7 +84,7 @@ class MapDbMapper extends BaseDbMapper {
 	function getMainMenu ($lvl=1,$parentId=0) {
 		$menu = array();
 		$sql = "
-		SELECT id, parentId, name, iconPath
+		SELECT id, parentId, name, iconPath, freeMode
 		FROM mode
 		WHERE active=1
 		AND lvl=".$lvl."
@@ -155,7 +155,7 @@ class MapDbMapper extends BaseDbMapper {
 					mysql_real_escape_string("%".$pattern."%"));
 		}
 
-		$retValue['main'] = array('name' => 'main', 'id' => $mode['id'], 'mode' => $modeString, 'entries' => array());
+		$retValue['main'] = array('name' => 'main', 'modeIdTree' => array(), 'mode' => $modeString, 'entries' => array());
 		if ($mode['freeMode'] == 1) {
 			$retValue['main']['mode'] = 'free';
 			return $retValue;

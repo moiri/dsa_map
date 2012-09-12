@@ -143,7 +143,7 @@ function MainMenu(destId, cache) {
 	 * @param array data: json array with data to draw 
 	 */
 	this.drawContentCb = function (data) {
-		var selectContent, mode;
+		var selectContent, mode, activeMode;
 		selectContent = '#' + me.destId + '-content';
 		$(selectContent).html('');
 		$('#' + me.destId + '-search').hide();
@@ -152,11 +152,19 @@ function MainMenu(destId, cache) {
 			return;
 		}
 		else if (data.main.mode === 'free') {
-			me.binder.freeMode.clickCb.call(me);
 			$(selectContent).append('<div>free mode</div>');
 			return;
 		}
 		else {
+			lvl = 1;
+			if ((activeMode = me.activeElems.mode[data.main.modeIdTree[lvl]]) !== undefined) {
+				while (activeMode.elements === undefined) {
+					lvl++;
+					if ((activeMode = activeMode.mode[data.main.modeIdTree[lvl]]) === undefined) {
+						break;
+					}
+				}
+			}
 			mode = data.main.mode;
 			$('#' + me.destId + '-search').show();
 			$('[id^="drawElement-"]').unbind();
@@ -174,12 +182,17 @@ function MainMenu(destId, cache) {
 				$.each(val.entries, function (key, val) {
 					var selected;
 					selected = '';
-					if ((me.images[data.main.id + '-' + val.id] !== undefined) && me.images[data.main.id + '-' + val.id].draw) {
+					if ((me.images.draw !== undefined) && 
+							(me.images.draw[data.main.activeMode + '-' + val.id] !== undefined) &&
+							me.images.draw[data.main.activeMode + '-' + val.id]) {
 						selected = ' selected';
 					}
-					$('<div id="drawElement-' + data.main.id + '-' + val.id + '" class="drawElement' + selected + '">' + val.name + '</div>').appendTo(selectCategoryEntries).bind('click', me.binder.drawElement.clickCb);
-					if ((me.activeElems[data.main.id] !== undefined) && (me.activeElems[data.main.id].counter > 0)) {
-						if ((me.activeElems[data.main.id].elements[val.id] !== undefined) && (me.activeElems[data.main.id].elements[val.id])) {
+					$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + selected + '">' + val.name + '</div>').appendTo(selectCategoryEntries).bind('click', function () {
+						me.binder.drawElement.clickCb.call(this, me);
+					});
+					
+					if ((activeMode !== undefined) && (activeMode.counter > 0)) {
+						if ((activeMode.elements[val.id] !== undefined) && (activeMode.elements[val.id])) {
 							$(selectCategory).children('div.categoryEye').addClass('open');
 							$(selectCategory).next().show();
 						}
@@ -196,19 +209,24 @@ function MainMenu(destId, cache) {
 
 	/**
 	 * get main menu tabs with ajax and on success draw it
+	 * 
+	 * @param func cb: callback function to be evoked after completion of menu draw
 	 */
-	this.drawMenu = function () {
+	this.drawMenu = function (cb) {
 		var url;
 		url = "php/ajax/getJson.php?j=tab";
-		$.getJSON(url, me.drawMenuCb);
+		$.getJSON(url, function (data) {
+			me.drawMenuCb(data, cb);
+		});
 	};
 
 	/**
 	 * draw main menu tabs (callback from drawTabs)
 	 * 
 	 * @param array data: json array with data to draw 
+	 * @param func cb: callback function to be evoked after completion of menu draw
 	 */
-	this.drawMenuCb = function (data) {
+	this.drawMenuCb = function (data, cb) {
 		var iteration, items, eyeAttr, midAttr;
 		items = [];
 		// define animate attributes (close / open menu) 
@@ -242,7 +260,7 @@ function MainMenu(destId, cache) {
 			}
 			$('<div/>', {
 				'id': myId,
-				'class': cssClass,
+				'class': cssClass
 			}).appendTo('#' + destId);
 			$.each(menu, function(key, val) {
 				// iterate through tab elements
@@ -257,9 +275,11 @@ function MainMenu(destId, cache) {
 				//$('html > head > style').append(" ." + imgCssClass + ":hover { background: url('img/" + val.iconPath.replace(/\./g, "_hov.") + "') no-repeat scroll 50% top; }\n");
 				//$('html > head > style').append(" ." + imgCssClass + ".selected:hover { background: url('img/" + val.iconPath.replace(/\./g, "_hov_sel.") + "') no-repeat scroll 50% top; }\n");
 				cssClass += ' ' + imgCssClass;
+				cssClass += (val.freeMode === '1') ? ' free' : '';
 				$('<div/>', {
 					'id': 'mode-' + modeIdIt + '-' + val.id,
-					'class': cssClass
+					'class': cssClass,
+					'title' : val.name
 				}).appendTo('#' + myId);
 
 				if (val.submenu !== undefined) {
@@ -305,6 +325,10 @@ function MainMenu(destId, cache) {
 			me.setMode(lastId, function () {
 				me.drawContent();
 			});
+			
+			if ($(this).hasClass('free')) {
+				me.binder.freeMode.clickCb.call(me);
+			}
 		});
 
 		// bind search key up events
@@ -325,6 +349,7 @@ function MainMenu(destId, cache) {
 		me.setWidth($('#' + destId).width() + 50);
 		$('#map-canvas').width($('#map-canvas').width() - me.width - me.eyeWidth);
 		me.bindEye(me.destId, eyeAttr, midAttr);
+		cb();
 	};
 	
 	/**
@@ -354,8 +379,10 @@ function InfoMenu(destId) {
 
 	/**
 	 * draw the menu
+	 * 
+	 * @param func cb: callback function to be evoked after completion of menu draw
 	 */
-	this.drawMenu = function () {
+	this.drawMenu = function (cb) {
 		var eyeAttr, midAttr;
 		// define animate attributes (close / open menu) 
 		eyeAttr = [];
@@ -379,6 +406,7 @@ function InfoMenu(destId) {
 		me.setWidth($('#' + destId).width());
 		$('#map-canvas').width($('#map-canvas').width() - me.width - me.eyeWidth);
 		me.bindEye(me.destId, eyeAttr, midAttr);
+		cb();
 	};
 }
 
