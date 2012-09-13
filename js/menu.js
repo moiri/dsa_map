@@ -174,7 +174,7 @@ function MainMenu(destId, cache) {
 				$('#free-category-active').append('<div class="categoryEye"></div>');
 				$('#free-category-active').append('<div class="categoryTitleText">Aktive Elemente</div>');
 				$(selectContent).append('<div id="free-category-active-entries" class="category"></div>');
-				
+
 				/**
 				 * 
 				 */
@@ -186,6 +186,7 @@ function MainMenu(destId, cache) {
 							if (mode[id].elements !== undefined) {
 								// write out entries
 								$('#activeMode-' + id).append('<div id="activeMode-' + id + '-entries" class="activeModeEntries"></div>');
+								mode[id].elements.sort();
 								for (var elemId in mode[id].elements) {
 									if (mode[id].elements.hasOwnProperty(elemId)) {
 										$('#activeMode-' + id + '-entries').append('<div id="activeMode-' + id + '-' + elemId +'" class="drawElement">' + mode[id].elements[elemId] + '</div>');
@@ -198,7 +199,7 @@ function MainMenu(destId, cache) {
 						}
 					}
 				};
-				
+
 				selector = '#free-category-active-entries';
 				drawActiveElements(me.activeElems.mode, selector);
 			}
