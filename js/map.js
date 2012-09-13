@@ -1,7 +1,8 @@
 /**
  * Map class, used to draw the map on the canvas
  * 
- * @param string mapId: id of the canvas element the map is drawn into 
+ * @param string mapId: id of the canvas element the map is drawn into
+ * @param object cache: reference to cache object, containing the stored images and the active elements array
  */
 function Map(mapId, cache) {
 	var me = this;

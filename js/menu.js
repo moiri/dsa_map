@@ -49,7 +49,11 @@ function Menu() {
 	};
 
 	/**
+	 * Setter to bind an event on the eyes closing and opening a menu.
+	 * This is used if the binded function must acces other objects than menu
 	 * 
+	 * @param string eStr: string to define the event
+	 * @param function cb: callback function to be evoked when event occures
 	 */
 	this.setEventBinderToggleMenu = function (eStr, cb) {
 		if (eStr === 'click') {
@@ -96,6 +100,7 @@ function Menu() {
  * MainMenu class, child of Menu class
  * 
  * @param string destId: destination id to draw main menu to
+ * @param object cache: reference to cache object, containing the stored images and the active elements array
  */
 function MainMenu(destId, cache) {
 	var me = this;
@@ -114,77 +119,6 @@ function MainMenu(destId, cache) {
 	me.binder.freeMode.clickCb = function () {
 		alert('no freeMode click event binded, use "setEventBinderFreeMode" to define the event');
 	};
-
-	/**
-	 * 
-	 */
-	this.handleActiveElements = function (id, name, modeId, draw) {
-		var activeModeArr, hasActiveElems, tabModeId, selfObj;
-		selfObj = this;
-
-		// highlight tabs and elements if active
-		$('[id|="mode-0"][id$="-' + modeId + '"]').each(function () {
-			var tabId, i, j;
-			tabId = $(this).attr('id').split('-');
-			tabId.shift();
-			// build activeElements Array
-			activeModeArr = [];
-			activeModeArr[1] = [];
-			if ((activeModeArr[1].mode = me.activeElems.mode) === undefined) {
-				activeModeArr[1].mode = [];
-			}
-			for (i = 1; i < tabId.length; i++) {
-				tabModeId = tabId[i];
-				if (activeModeArr[i].mode[tabModeId] === undefined) {
-					activeModeArr[i].mode[tabModeId] = [];
-					activeModeArr[i].mode[tabModeId].id = tabModeId;
-					activeModeArr[i].mode[tabModeId].counter = 0;
-				}
-				if (tabModeId === modeId) {
-					// we are on the last tab level (has drawElements)
-					if (activeModeArr[i].mode[tabModeId].elements === undefined) {
-						activeModeArr[i].mode[tabModeId].elements = [];
-					}
-					if (draw) {
-						activeModeArr[i].mode[tabModeId].elements[id] = name;
-						selfObj.activeElems.counter++;
-						for (j = 1; j <= i; j++) {
-							activeModeArr[j].mode[tabId[j]].counter++;
-						}
-					}
-					else {
-						delete activeModeArr[i].mode[tabModeId].elements[id];
-						selfObj.activeElems.counter--;
-						for (j = 1; j <= i; j++) {
-							activeModeArr[j].mode[tabId[j]].counter--;
-						}
-					}
-				}
-				else {
-					// tab without drawElements
-					if (activeModeArr[i].mode[tabModeId].mode === undefined) {
-						activeModeArr[i].mode[tabModeId].mode = [];
-					}
-				}
-				activeModeArr[i+1] = [];
-				activeModeArr[i+1].mode = activeModeArr[i].mode[tabModeId].mode;
-			}
-
-			// handle tab css selected class
-			for (i = 1; i < tabId.length; i++) {
-				tabModeId = tabId[i];
-				$('[id|="mode-0"][id$="-' + tabModeId + '"]').each(function () {
-					activeModeArr[i].mode[tabModeId].name = $(this).attr('title');
-					if (activeModeArr[i].mode[tabModeId].counter > 0) {
-						$(this).addClass(selfObj.cssSelected);
-					}
-					else {
-						$(this).removeClass(selfObj.cssSelected);
-					}
-				});
-			}
-		});
-	}
 
 	/**
 	 * clear all active elements from the cache (it does not remove the cached images)
@@ -213,112 +147,6 @@ function MainMenu(destId, cache) {
 		}
 		$.getJSON(url, function (data) {
 			me.drawContentCb.call(me, data);
-		});
-	};
-	
-	/**
-	 * 
-	 */
-	this.drawFreeContent = function () {
-		var selector, drawActiveElements, selfObj, selectContent;
-		selfObj = this;
-		selectContent = '#' + selfObj.destId + '-content';
-		$(selectContent).html('');
-		if (selfObj.activeElems.counter > 0) {
-			$(selectContent).append('<div id="free-category-active" class="categoryTitle"></div>');
-			$('#free-category-active').append('<div class="categoryEye open"></div>');
-			$('#free-category-active').append('<div class="categoryTitleText">Aktive Elemente</div>');
-			$(selectContent).append('<div id="free-category-active-entries" class="category"></div>');
-			$('#free-category-active-entries').show();
-
-			/**
-			 * 
-			 */
-			drawActiveElements = function (mode, selector) {
-				var id, elemId;
-				for (id in mode) {
-					if (mode.hasOwnProperty(id) && (mode[id].counter > 0)) {
-						$(selector).append('<div id="activeMode-' + id + '" class="activeMode"></div>');
-						$('#activeMode-' + id).append('<div id="activeMode-' + id + '-title" class="activeModeTitle">' + mode[id].name + '</div>');
-						if (mode[id].elements !== undefined) {
-							// write out entries
-							$('#activeMode-' + id).append('<div id="activeMode-' + id + '-entries" class="activeModeEntries"></div>');
-							//mode[id].elements.sort();
-							for (elemId in mode[id].elements) {
-								if (mode[id].elements.hasOwnProperty(elemId)) {
-									$('#activeMode-' + id + '-entries').append('<div id="activeElementClear-' + id + '-' + elemId +'" class="clearElement"></div>')
-									.append('<div id="activeElement-' + id + '-' + elemId +'" class="drawElement">' + mode[id].elements[elemId] + '</div>');
-									$()
-								}
-							}
-						}
-						else {
-							drawActiveElements(mode[id].mode, '#activeMode-' + id);
-						}
-					}
-				}
-			};
-
-			selector = '#free-category-active-entries';
-			drawActiveElements(selfObj.activeElems.mode, selector);
-			$('[id|="activeElementClear"]').unbind('click');
-			$('[id|="activeElementClear"]').bind('click', function () {
-				selfObj.binder.clearActiveElement.clickCb.call(this, me);
-			});
-		}
-	};
-	
-	/**
-	 * 
-	 */
-	this.drawListContent = function (data) {
-		var lvl, selectContent, mode, activeMode, drawActiveElements, selector;
-		selfObj = this;
-		selectContent = '#' + selfObj.destId + '-content';
-		$(selectContent).html('');
-		lvl = 1;
-		if ((activeMode = selfObj.activeElems.mode[data.main.modeIdTree[lvl]]) !== undefined) {
-			while (activeMode.elements === undefined) {
-				lvl++;
-				if ((activeMode = activeMode.mode[data.main.modeIdTree[lvl]]) === undefined) {
-					break;
-				}
-			}
-		}
-		mode = data.main.mode;
-		$('#' + selfObj.destId + '-search').show();
-		$('[id^="drawElement-"]').unbind();
-		$.each(data, function (key, val) {
-			var selectCategoryEntries, selectCategory;
-			selectCategoryEntries = selectContent;
-			if ((key !== 'main') && (mode !== 'search')) {
-				$(selectContent).append('<div id="category-' + val.id + '" class="categoryTitle"></div>');
-				selectCategory = '#category-' + val.id;
-				$(selectCategory).append('<div class="categoryEye"></div>');
-				$(selectCategory).append('<div class="categoryTitleText">' + key + '</div>');
-				$(selectContent).append('<div id="category-' + val.id + '-entries" class="category"></div>');
-				selectCategoryEntries += ' > ' + selectCategory + '-entries';
-			}
-			$.each(val.entries, function (key, val) {
-				var selected;
-				selected = '';
-				if ((selfObj.images.draw !== undefined) && 
-						(selfObj.images.draw[data.main.activeMode + '-' + val.id] !== undefined) &&
-						selfObj.images.draw[data.main.activeMode + '-' + val.id]) {
-					selected = ' selected';
-				}
-				$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + selected + '">' + val.name + '</div>').appendTo(selectCategoryEntries)
-				.bind('click', function () {
-					selfObj.binder.drawElement.clickCb.call(this, me);
-				});
-
-				if ((activeMode !== undefined) && (activeMode.counter > 0)) {
-					if ((activeMode.elements[val.id] !== undefined) && (activeMode.elements[val.id])) {
-						$(selectCategory).children('div.categoryEye').addClass('open');
-						$(selectCategory).next().show();
-					}
-				}
-			});
 		});
 	};
 
@@ -495,7 +323,196 @@ function MainMenu(destId, cache) {
 	};
 	
 	/**
+	 * draws the content of the free mode menu
+	 */
+	this.drawFreeContent = function () {
+		var selector, drawActiveElements, selfObj, selectContent;
+		selfObj = this;
+		selectContent = '#' + selfObj.destId + '-content';
+		$(selectContent).html('');
+		if (selfObj.activeElems.counter > 0) {
+			$(selectContent).append('<div id="free-category-active" class="categoryTitle"></div>');
+			$('#free-category-active').append('<div class="categoryEye open"></div>');
+			$('#free-category-active').append('<div class="categoryTitleText">Aktive Elemente</div>');
+			$(selectContent).append('<div id="free-category-active-entries" class="category"></div>');
+			$('#free-category-active-entries').show();
+
+			/**
+			 * 
+			 */
+			drawActiveElements = function (mode, selector) {
+				var id, elemId;
+				for (id in mode) {
+					if (mode.hasOwnProperty(id) && (mode[id].counter > 0)) {
+						$(selector).append('<div id="activeMode-' + id + '" class="activeMode"></div>');
+						$('#activeMode-' + id).append('<div id="activeMode-' + id + '-title" class="activeModeTitle">' + mode[id].name + '</div>');
+						if (mode[id].elements !== undefined) {
+							// write out entries
+							$('#activeMode-' + id).append('<div id="activeMode-' + id + '-entries" class="activeModeEntries"></div>');
+							//mode[id].elements.sort();
+							for (elemId in mode[id].elements) {
+								if (mode[id].elements.hasOwnProperty(elemId)) {
+									$('#activeMode-' + id + '-entries').append('<div id="activeElementClear-' + id + '-' + elemId +'" class="clearElement"></div>')
+									.append('<div id="activeElement-' + id + '-' + elemId +'" class="drawElement">' + mode[id].elements[elemId] + '</div>');
+									$()
+								}
+							}
+						}
+						else {
+							drawActiveElements(mode[id].mode, '#activeMode-' + id);
+						}
+					}
+				}
+			};
+
+			selector = '#free-category-active-entries';
+			drawActiveElements(selfObj.activeElems.mode, selector);
+			$('[id|="activeElementClear"]').unbind('click');
+			$('[id|="activeElementClear"]').bind('click', function () {
+				selfObj.binder.clearActiveElement.clickCb.call(this, me);
+			});
+		}
+	};
+	
+	/**
+	 * draws the content of menus showing element lists (not free mode)
 	 * 
+	 * @param object data: json object containing all elements to be drawn
+	 */
+	this.drawListContent = function (data) {
+		var lvl, selectContent, mode, activeMode, drawActiveElements, selector;
+		selfObj = this;
+		selectContent = '#' + selfObj.destId + '-content';
+		$(selectContent).html('');
+		lvl = 1;
+		if ((activeMode = selfObj.activeElems.mode[data.main.modeIdTree[lvl]]) !== undefined) {
+			while (activeMode.elements === undefined) {
+				lvl++;
+				if ((activeMode = activeMode.mode[data.main.modeIdTree[lvl]]) === undefined) {
+					break;
+				}
+			}
+		}
+		mode = data.main.mode;
+		$('#' + selfObj.destId + '-search').show();
+		$('[id^="drawElement-"]').unbind();
+		$.each(data, function (key, val) {
+			var selectCategoryEntries, selectCategory;
+			selectCategoryEntries = selectContent;
+			if ((key !== 'main') && (mode !== 'search')) {
+				$(selectContent).append('<div id="category-' + val.id + '" class="categoryTitle"></div>');
+				selectCategory = '#category-' + val.id;
+				$(selectCategory).append('<div class="categoryEye"></div>');
+				$(selectCategory).append('<div class="categoryTitleText">' + key + '</div>');
+				$(selectContent).append('<div id="category-' + val.id + '-entries" class="category"></div>');
+				selectCategoryEntries += ' > ' + selectCategory + '-entries';
+			}
+			$.each(val.entries, function (key, val) {
+				var selected;
+				selected = '';
+				if ((selfObj.images.draw !== undefined) && 
+						(selfObj.images.draw[data.main.activeMode + '-' + val.id] !== undefined) &&
+						selfObj.images.draw[data.main.activeMode + '-' + val.id]) {
+					selected = ' selected';
+				}
+				$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + selected + '">' + val.name + '</div>').appendTo(selectCategoryEntries)
+				.bind('click', function () {
+					selfObj.binder.drawElement.clickCb.call(this, me);
+				});
+
+				if ((activeMode !== undefined) && (activeMode.counter > 0)) {
+					if ((activeMode.elements[val.id] !== undefined) && (activeMode.elements[val.id])) {
+						$(selectCategory).children('div.categoryEye').addClass('open');
+						$(selectCategory).next().show();
+					}
+				}
+			});
+		});
+	};
+	
+	/**
+	 * manages the active elements array (adds and removes items) and the tab css classes
+	 * (adds and removes classes to show if an active element is in the corresponding tab or not)
+	 * 
+	 * @param string id: id of the element to be removed or added to the active elements
+	 * @param string name: name of the element to be removed or added to the active elements
+	 * @param string modeId: id of the active mode corresponding to the element
+	 * @param bool draw: if true, the element is added, else it is removed
+	 */
+	this.handleActiveElements = function (id, name, modeId, draw) {
+		var activeModeArr, hasActiveElems, tabModeId, selfObj;
+		selfObj = this;
+
+		// highlight tabs and elements if active
+		$('[id|="mode-0"][id$="-' + modeId + '"]').each(function () {
+			var tabId, i, j;
+			tabId = $(this).attr('id').split('-');
+			tabId.shift();
+			// build activeElements Array
+			activeModeArr = [];
+			activeModeArr[1] = [];
+			if ((activeModeArr[1].mode = me.activeElems.mode) === undefined) {
+				activeModeArr[1].mode = [];
+			}
+			for (i = 1; i < tabId.length; i++) {
+				tabModeId = tabId[i];
+				if (activeModeArr[i].mode[tabModeId] === undefined) {
+					activeModeArr[i].mode[tabModeId] = [];
+					activeModeArr[i].mode[tabModeId].id = tabModeId;
+					activeModeArr[i].mode[tabModeId].counter = 0;
+				}
+				if (tabModeId === modeId) {
+					// we are on the last tab level (has drawElements)
+					if (activeModeArr[i].mode[tabModeId].elements === undefined) {
+						activeModeArr[i].mode[tabModeId].elements = [];
+					}
+					if (draw) {
+						activeModeArr[i].mode[tabModeId].elements[id] = name;
+						selfObj.activeElems.counter++;
+						for (j = 1; j <= i; j++) {
+							activeModeArr[j].mode[tabId[j]].counter++;
+						}
+					}
+					else {
+						delete activeModeArr[i].mode[tabModeId].elements[id];
+						selfObj.activeElems.counter--;
+						for (j = 1; j <= i; j++) {
+							activeModeArr[j].mode[tabId[j]].counter--;
+						}
+					}
+				}
+				else {
+					// tab without drawElements
+					if (activeModeArr[i].mode[tabModeId].mode === undefined) {
+						activeModeArr[i].mode[tabModeId].mode = [];
+					}
+				}
+				activeModeArr[i+1] = [];
+				activeModeArr[i+1].mode = activeModeArr[i].mode[tabModeId].mode;
+			}
+
+			// handle tab css selected class
+			for (i = 1; i < tabId.length; i++) {
+				tabModeId = tabId[i];
+				$('[id|="mode-0"][id$="-' + tabModeId + '"]').each(function () {
+					activeModeArr[i].mode[tabModeId].name = $(this).attr('title');
+					if (activeModeArr[i].mode[tabModeId].counter > 0) {
+						$(this).addClass(selfObj.cssSelected);
+					}
+					else {
+						$(this).removeClass(selfObj.cssSelected);
+					}
+				});
+			}
+		});
+	}
+	
+	/**
+	 * Setter to bind an event on clearActiveElements (id-refix: activeElementClear).
+	 * This is used if the binded function must acces other objects than mainMenu
+	 * 
+	 * @param string eStr: string to define the event
+	 * @param function cb: callback function to be evoked when event occures
 	 */
 	this.setEventBinderClearActiveElement = function (eStr, cb) {
 		if (eStr === 'click') {
@@ -507,7 +524,11 @@ function MainMenu(destId, cache) {
 	};
 	
 	/**
+	 * Setter to bind an event on draw elements (id-refix: drawElement).
+	 * This is used if the binded function must acces other objects than mainMenu
 	 * 
+	 * @param string eStr: string to define the event
+	 * @param function cb: callback function to be evoked when event occures
 	 */
 	this.setEventBinderDrawElement = function (eStr, cb) {
 		if (eStr === 'click') {
@@ -519,7 +540,11 @@ function MainMenu(destId, cache) {
 	};
 
 	/**
+	 * Setter to bind an event on freeMode tab.
+	 * This is used if the binded function must acces other objects than mainMenu
 	 * 
+	 * @param string eStr: string to define the event
+	 * @param function cb: callback function to be evoked when event occures
 	 */
 	this.setEventBinderFreeMode = function (eStr, cb) {
 		if (eStr === 'click') {
@@ -537,7 +562,6 @@ MainMenu.prototype = new Menu();
  * InfoMenu class, child of Menu class
  * 
  * @param string destId: destination id to draw info menu to
- * @param func cb: this callback function is executed onclick on the eye
  */
 function InfoMenu(destId) {
 	var me = this;
