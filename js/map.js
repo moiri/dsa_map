@@ -101,7 +101,7 @@ function Map(mapId, cache) {
 							me.images.img[drawOrderMode][drawOrderElem].sort();
 							for (var id in me.images.img[drawOrderMode][drawOrderElem]) {
 								if (me.images.img[drawOrderMode][drawOrderElem].hasOwnProperty(id) &&
-										 me.images.draw[id] &&
+										 (me.images.draw[id] || (drawOrderMode === 'drawOrderMode-0')) &&
 										 (me.images.img[drawOrderMode][drawOrderElem][id] !== null)) {
 									img = me.images.img[drawOrderMode][drawOrderElem][id];
 									me.bufferCtx.drawImage(img, 0, 0);

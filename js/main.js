@@ -8,7 +8,6 @@ $(document).ready(function() {
 	cache.activeElems = [];
 	cache.activeElems.mode = [];
 	cache.activeElems.counter = 0;
-	cssSelected = 'selected';
 	img = [];
 	img.picturePath = "map/continental.jpg";
 	img.id = '0';
@@ -24,12 +23,12 @@ $(document).ready(function() {
 	mainMenu = new MainMenu('menu-main', cache);
 	mainMenu.setEventBinderDrawElement('click', function (selfObj) {
 		var url, idElem, draw, activeModeId, activeModeArr, activeElementId, activeElementName, hasActiveElems, tabModeId;
-		if ($(this).hasClass(cssSelected)) {
-			$(this).removeClass(cssSelected);
+		if ($(this).hasClass(selfObj.cssSelected)) {
+			$(this).removeClass(selfObj.cssSelected);
 			draw = false;
 		}
 		else {
-			$(this).addClass(cssSelected);
+			$(this).addClass(selfObj.cssSelected);
 			draw = true;
 		}
 		idElem = $(this).attr('id').split('-');
@@ -91,10 +90,10 @@ $(document).ready(function() {
 				$('[id|="mode-0"][id$="-' + tabModeId + '"]').each(function () {
 					activeModeArr[i].mode[tabModeId].name = $(this).attr('title');
 					if (activeModeArr[i].mode[tabModeId].counter > 0) {
-						$(this).addClass(cssSelected);
+						$(this).addClass(selfObj.cssSelected);
 					}
 					else {
-						$(this).removeClass(cssSelected);
+						$(this).removeClass(selfObj.cssSelected);
 					}
 				});
 			}
@@ -106,15 +105,8 @@ $(document).ready(function() {
 		});
 	});
 	mainMenu.setEventBinderFreeMode('click', function () {
-		var id;
-		$('[id|="mode"]').removeClass(cssSelected);
-		this.activeElems.mode = [];
-		for (id in this.images.draw) {
-			if (this.images.draw.hasOwnProperty(id) && (id !== img.mode.id + "-" + img.id)) {
-				this.images.draw[id] = false;
-			}
-		}
-		map.drawImageToCanvas();
+		//mainMenu.clearActiveElements();
+		//map.drawImageToCanvas();
 	});
 	mainMenu.setEventBinderToggleMenu('click', function () {
 		map.initMapOnCanvas();

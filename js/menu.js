@@ -5,12 +5,13 @@ function Menu() {
 	var me = this;
 	me.mode;
 	me.eyeWidth = 22;
+	me.cssSelected = 'selected';
 	me.binder = [];
 	me.binder.drawElement = [];
 	me.binder.drawElement.clickCb = function () {
 		alert('no drawElement click event binded, use "setEventBinderDrawElement" to define the event');
 	};
-	
+
 	me.binder.toggleMenu = [];
 	me.binder.toggleMenu.clickCb = function () {
 		alert('no toggleMenu click event binded, use "setEventBinderToggleMenu" to define the event');
@@ -51,7 +52,7 @@ function Menu() {
 			$(eye).toggleClass('close');
 		});
 	};
-	
+
 	/**
 	 * 
 	 */
@@ -63,7 +64,7 @@ function Menu() {
 			alert('setEventBinderDrawElement: bad eStr');
 		}
 	};
-	
+
 	/**
 	 * 
 	 */
@@ -96,7 +97,7 @@ function Menu() {
 			}
 		});
 	};
-	
+
 	/**
 	 * set menu width
 	 * 
@@ -124,6 +125,20 @@ function MainMenu(destId, cache) {
 	};
 
 	/**
+	 * clear all active elements from the cache (it does not remove the cached images)
+	 */
+	this.clearActiveElements = function () {
+		var id;
+		$('[id|="mode"]').removeClass(me.cssSelected);
+		me.activeElems.mode = [];
+		me.activeElems.counter = 0;
+		for (id in me.images.draw) {
+			me.images.draw[id] = false;
+		}
+		$('#free-category-active-entries').html('');
+	};
+
+	/**
 	 * get menu content with ajax and on success draw it
 	 * 
 	 * @param string pattern: serach pattern
@@ -143,7 +158,7 @@ function MainMenu(destId, cache) {
 	 * @param array data: json array with data to draw 
 	 */
 	this.drawContentCb = function (data) {
-		var selectContent, mode, activeMode;
+		var selectContent, mode, activeMode, drawActiveElements;
 		selectContent = '#' + me.destId + '-content';
 		$(selectContent).html('');
 		$('#' + me.destId + '-search').hide();
@@ -152,8 +167,36 @@ function MainMenu(destId, cache) {
 			return;
 		}
 		else if (data.main.mode === 'free') {
-			$(selectContent).append('<div>free mode</div>');
-			return;
+			if (me.activeElems.counter > 0) {
+				$(selectContent).append('<div id="free-category-active" class="categoryTitle"></div>');
+				$('#free-category-active').append('<div class="categoryEye"></div>');
+				$('#free-category-active').append('<div class="categoryTitleText">Aktive Elemente</div>');
+				$(selectContent).append('<div id="free-category-active-entries" class="category"></div>');
+				
+				/**
+				 * 
+				 */
+				drawActiveElements = function (mode) {
+					for (var id in mode) {
+						if (mode.hasOwnProperty(id)) {
+							$('#free-category-active-entries').append('<div id="activeMode-' + id + '">' + mode[id].name + '</div>');
+							if (mode[id].elements !== undefined) {
+								// write out entries
+								for (var elemId in mode[id].elements) {
+									if (mode[id].elements.hasOwnProperty(elemId)) {
+										$('#activeMode-' + id).append('<div id="activeMode-' + id + '-' + elemId +'">' + mode[id].elements[elemId] + '</div>');
+									}
+								}
+							}
+							else {
+								drawActiveElements(mode[id].mode);
+							}
+						}
+					}
+				};
+				
+				drawActiveElements(me.activeElems.mode);
+			}
 		}
 		else {
 			lvl = 1;
@@ -190,7 +233,7 @@ function MainMenu(destId, cache) {
 					$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + selected + '">' + val.name + '</div>').appendTo(selectCategoryEntries).bind('click', function () {
 						me.binder.drawElement.clickCb.call(this, me);
 					});
-					
+
 					if ((activeMode !== undefined) && (activeMode.counter > 0)) {
 						if ((activeMode.elements[val.id] !== undefined) && (activeMode.elements[val.id])) {
 							$(selectCategory).children('div.categoryEye').addClass('open');
@@ -199,12 +242,12 @@ function MainMenu(destId, cache) {
 					}
 				});
 			});
-			$('.categoryTitle').unbind('click');
-			$('.categoryTitle').bind('click', function () {
-				$(this).children('div.categoryEye').toggleClass('open');
-				$(this).next().toggle('fast');
-			});
 		}
+		$('.categoryTitle').unbind('click');
+		$('.categoryTitle').bind('click', function () {
+			$(this).children('div.categoryEye').toggleClass('open');
+			$(this).next().toggle('fast');
+		});
 	};
 
 	/**
@@ -325,7 +368,7 @@ function MainMenu(destId, cache) {
 			me.setMode(lastId, function () {
 				me.drawContent();
 			});
-			
+
 			if ($(this).hasClass('free')) {
 				me.binder.freeMode.clickCb.call(me);
 			}
@@ -351,7 +394,7 @@ function MainMenu(destId, cache) {
 		me.bindEye(me.destId, eyeAttr, midAttr);
 		cb();
 	};
-	
+
 	/**
 	 * 
 	 */
