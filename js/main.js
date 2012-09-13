@@ -21,6 +21,7 @@ $(document).ready(function() {
 
 	// create and define mainMenu
 	mainMenu = new MainMenu('menu-main', cache);
+	// is executed when clicked on a draw element in a main menu list
 	mainMenu.setEventBinderDrawElement('click', function (selfObj) {
 		var url, idElem, draw, element;
 		if ($(this).hasClass(selfObj.cssSelected)) {
@@ -44,6 +45,7 @@ $(document).ready(function() {
 			map.loadImage(data, map.drawImageToCanvas, draw);
 		});
 	});
+	// is executed when clicked on a clear active element in the free mode main menu
 	mainMenu.setEventBinderClearActiveElement('click', function (selfObj) {
 		var url, idElem, draw, element;
 		
@@ -60,14 +62,17 @@ $(document).ready(function() {
 		});
 		selfObj.drawFreeContent.call(selfObj);
 	});
+	// is executed when clicked on clear all active elements in the free mode main menu
 	mainMenu.setEventBinderClearActiveElements('click', function () {
 		this.clearActiveElements.call(this);
 		this.drawFreeContent.call(this);
 		map.drawImageToCanvas();
 	});
+	// is executed when clicked on the free mode tab
 	mainMenu.setEventBinderFreeMode('click', function () {
 		// nothing to do, don't need this binder...
 	});
+	// is executed when clicked on an eye to hide/show a menu
 	mainMenu.setEventBinderToggleMenu('click', function () {
 		map.initMapOnCanvas();
 		map.drawImageToCanvas();
