@@ -43,7 +43,11 @@ else if ($_GET['j'] == 'allImg') {
 }
 else if ($_GET['j'] == 'imgById') {
 	// get mode information
-	$mode = $map->selectByUid('mode', $_SESSION['mode']);
+	$modeId = $_SESSION['mode'];
+	if (isset($_GET['modeId'])) {
+		$modeId = $_GET['modeId'];
+	}
+	$mode = $map->selectByUid('mode', $modeId);
 	if ($mode) {
 		$res = $map->selectByUid($mode['tableName'], $_GET['id']);
 		if (!isset($res['mode'])) {

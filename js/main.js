@@ -22,7 +22,7 @@ $(document).ready(function() {
 	// create and define mainMenu
 	mainMenu = new MainMenu('menu-main', cache);
 	mainMenu.setEventBinderDrawElement('click', function (selfObj) {
-		var url, idElem, draw, activeModeId, activeModeArr, activeElementId, activeElementName, hasActiveElems, tabModeId;
+		var url, idElem, draw, element;
 		if ($(this).hasClass(selfObj.cssSelected)) {
 			$(this).removeClass(selfObj.cssSelected);
 			draw = false;
@@ -31,78 +31,34 @@ $(document).ready(function() {
 			$(this).addClass(selfObj.cssSelected);
 			draw = true;
 		}
+		
 		idElem = $(this).attr('id').split('-');
-		activeModeId = idElem[1];
-		activeElementId = idElem[2];
-		activeElementName = $(this).text();
+		element = [];
+		element.id = idElem[2];
+		element.name = $(this).text();
+		element.modeId = idElem[1];
+		selfObj.handleActiveElements.call(selfObj, element.id, element.name, element.modeId, draw);
 
-		// highlight tabs and elements if active
-		$('[id|="mode-0"][id$="-' + activeModeId + '"]').each(function () {
-			var tabId, i, j;
-			tabId = $(this).attr('id').split('-');
-			tabId.shift();
-			// build activeElements Array
-			activeModeArr = [];
-			activeModeArr[1] = [];
-			if ((activeModeArr[1].mode = selfObj.activeElems.mode) === undefined) {
-				activeModeArr[1].mode = [];
-			}
-			for (i = 1; i < tabId.length; i++) {
-				tabModeId = tabId[i];
-				if (activeModeArr[i].mode[tabModeId] === undefined) {
-					activeModeArr[i].mode[tabModeId] = [];
-					activeModeArr[i].mode[tabModeId].id = tabModeId;
-					activeModeArr[i].mode[tabModeId].counter = 0;
-				}
-				if (tabModeId === activeModeId) {
-					// we are on the last tab level (has drawElements)
-					if (activeModeArr[i].mode[tabModeId].elements === undefined) {
-						activeModeArr[i].mode[tabModeId].elements = [];
-					}
-					if (draw) {
-						activeModeArr[i].mode[tabModeId].elements[activeElementId] = activeElementName;
-						selfObj.activeElems.counter++;
-						for (j = 1; j <= i; j++) {
-							activeModeArr[j].mode[tabId[j]].counter++;
-						}
-					}
-					else {
-						delete activeModeArr[i].mode[tabModeId].elements[activeElementId];
-						selfObj.activeElems.counter--;
-						for (j = 1; j <= i; j++) {
-							activeModeArr[j].mode[tabId[j]].counter--;
-						}
-					}
-				}
-				else {
-					// tab without drawElements
-					if (activeModeArr[i].mode[tabModeId].mode === undefined) {
-						activeModeArr[i].mode[tabModeId].mode = [];
-					}
-				}
-				activeModeArr[i+1] = [];
-				activeModeArr[i+1].mode = activeModeArr[i].mode[tabModeId].mode;
-			}
-
-			// handle tab css selected class
-			for (i = 1; i < tabId.length; i++) {
-				tabModeId = tabId[i];
-				$('[id|="mode-0"][id$="-' + tabModeId + '"]').each(function () {
-					activeModeArr[i].mode[tabModeId].name = $(this).attr('title');
-					if (activeModeArr[i].mode[tabModeId].counter > 0) {
-						$(this).addClass(selfObj.cssSelected);
-					}
-					else {
-						$(this).removeClass(selfObj.cssSelected);
-					}
-				});
-			}
-		});
-
-		url = "php/ajax/getJson.php?j=imgById&id=" + activeElementId;
+		url = "php/ajax/getJson.php?j=imgById&id=" + element.id;
 		$.getJSON(url, function (data) {
 			map.loadImage(data, map.drawImageToCanvas, draw);
 		});
+	});
+	mainMenu.setEventBinderClearActiveElement('click', function (selfObj) {
+		var url, idElem, draw, element;
+		
+		idElem = $(this).attr('id').split('-');
+		element = [];
+		element.id = idElem[2];
+		element.name = $(this).text();
+		element.modeId = idElem[1];
+		selfObj.handleActiveElements.call(selfObj, element.id, element.name, element.modeId, false);
+
+		url = "php/ajax/getJson.php?j=imgById&id=" + element.id + "&modeId=" + element.modeId;
+		$.getJSON(url, function (data) {
+			map.loadImage(data, map.drawImageToCanvas, false);
+		});
+		selfObj.drawFreeContent.call(selfObj);
 	});
 	mainMenu.setEventBinderFreeMode('click', function () {
 		//mainMenu.clearActiveElements();

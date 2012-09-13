@@ -7,11 +7,6 @@ function Menu() {
 	me.eyeWidth = 22;
 	me.cssSelected = 'selected';
 	me.binder = [];
-	me.binder.drawElement = [];
-	me.binder.drawElement.clickCb = function () {
-		alert('no drawElement click event binded, use "setEventBinderDrawElement" to define the event');
-	};
-
 	me.binder.toggleMenu = [];
 	me.binder.toggleMenu.clickCb = function () {
 		alert('no toggleMenu click event binded, use "setEventBinderToggleMenu" to define the event');
@@ -51,18 +46,6 @@ function Menu() {
 			}
 			$(eye).toggleClass('close');
 		});
-	};
-
-	/**
-	 * 
-	 */
-	this.setEventBinderDrawElement = function (eStr, cb) {
-		if (eStr === 'click') {
-			me.binder.drawElement.clickCb = cb;
-		}
-		else {
-			alert('setEventBinderDrawElement: bad eStr');
-		}
 	};
 
 	/**
@@ -119,10 +102,89 @@ function MainMenu(destId, cache) {
 	me.destId = destId;
 	me.images = cache.images;
 	me.activeElems = cache.activeElems;
+	me.binder.clearActiveElement = [];
+	me.binder.clearActiveElement.clickCb = function () {
+		alert('no clearActiveElement click event binded, use "setEventBinderClearActiveElement" to define the event');
+	};
+	me.binder.drawElement = [];
+	me.binder.drawElement.clickCb = function () {
+		alert('no drawElement click event binded, use "setEventBinderDrawElement" to define the event');
+	};
 	me.binder.freeMode = [];
 	me.binder.freeMode.clickCb = function () {
 		alert('no freeMode click event binded, use "setEventBinderFreeMode" to define the event');
 	};
+
+	/**
+	 * 
+	 */
+	this.handleActiveElements = function (id, name, modeId, draw) {
+		var activeModeArr, hasActiveElems, tabModeId, selfObj;
+		selfObj = this;
+
+		// highlight tabs and elements if active
+		$('[id|="mode-0"][id$="-' + modeId + '"]').each(function () {
+			var tabId, i, j;
+			tabId = $(this).attr('id').split('-');
+			tabId.shift();
+			// build activeElements Array
+			activeModeArr = [];
+			activeModeArr[1] = [];
+			if ((activeModeArr[1].mode = me.activeElems.mode) === undefined) {
+				activeModeArr[1].mode = [];
+			}
+			for (i = 1; i < tabId.length; i++) {
+				tabModeId = tabId[i];
+				if (activeModeArr[i].mode[tabModeId] === undefined) {
+					activeModeArr[i].mode[tabModeId] = [];
+					activeModeArr[i].mode[tabModeId].id = tabModeId;
+					activeModeArr[i].mode[tabModeId].counter = 0;
+				}
+				if (tabModeId === modeId) {
+					// we are on the last tab level (has drawElements)
+					if (activeModeArr[i].mode[tabModeId].elements === undefined) {
+						activeModeArr[i].mode[tabModeId].elements = [];
+					}
+					if (draw) {
+						activeModeArr[i].mode[tabModeId].elements[id] = name;
+						selfObj.activeElems.counter++;
+						for (j = 1; j <= i; j++) {
+							activeModeArr[j].mode[tabId[j]].counter++;
+						}
+					}
+					else {
+						delete activeModeArr[i].mode[tabModeId].elements[id];
+						selfObj.activeElems.counter--;
+						for (j = 1; j <= i; j++) {
+							activeModeArr[j].mode[tabId[j]].counter--;
+						}
+					}
+				}
+				else {
+					// tab without drawElements
+					if (activeModeArr[i].mode[tabModeId].mode === undefined) {
+						activeModeArr[i].mode[tabModeId].mode = [];
+					}
+				}
+				activeModeArr[i+1] = [];
+				activeModeArr[i+1].mode = activeModeArr[i].mode[tabModeId].mode;
+			}
+
+			// handle tab css selected class
+			for (i = 1; i < tabId.length; i++) {
+				tabModeId = tabId[i];
+				$('[id|="mode-0"][id$="-' + tabModeId + '"]').each(function () {
+					activeModeArr[i].mode[tabModeId].name = $(this).attr('title');
+					if (activeModeArr[i].mode[tabModeId].counter > 0) {
+						$(this).addClass(selfObj.cssSelected);
+					}
+					else {
+						$(this).removeClass(selfObj.cssSelected);
+					}
+				});
+			}
+		});
+	}
 
 	/**
 	 * clear all active elements from the cache (it does not remove the cached images)
@@ -153,6 +215,112 @@ function MainMenu(destId, cache) {
 			me.drawContentCb.call(me, data);
 		});
 	};
+	
+	/**
+	 * 
+	 */
+	this.drawFreeContent = function () {
+		var selector, drawActiveElements, selfObj, selectContent;
+		selfObj = this;
+		selectContent = '#' + selfObj.destId + '-content';
+		$(selectContent).html('');
+		if (selfObj.activeElems.counter > 0) {
+			$(selectContent).append('<div id="free-category-active" class="categoryTitle"></div>');
+			$('#free-category-active').append('<div class="categoryEye open"></div>');
+			$('#free-category-active').append('<div class="categoryTitleText">Aktive Elemente</div>');
+			$(selectContent).append('<div id="free-category-active-entries" class="category"></div>');
+			$('#free-category-active-entries').show();
+
+			/**
+			 * 
+			 */
+			drawActiveElements = function (mode, selector) {
+				var id, elemId;
+				for (id in mode) {
+					if (mode.hasOwnProperty(id) && (mode[id].counter > 0)) {
+						$(selector).append('<div id="activeMode-' + id + '" class="activeMode"></div>');
+						$('#activeMode-' + id).append('<div id="activeMode-' + id + '-title" class="activeModeTitle">' + mode[id].name + '</div>');
+						if (mode[id].elements !== undefined) {
+							// write out entries
+							$('#activeMode-' + id).append('<div id="activeMode-' + id + '-entries" class="activeModeEntries"></div>');
+							//mode[id].elements.sort();
+							for (elemId in mode[id].elements) {
+								if (mode[id].elements.hasOwnProperty(elemId)) {
+									$('#activeMode-' + id + '-entries').append('<div id="activeElementClear-' + id + '-' + elemId +'" class="clearElement"></div>')
+									.append('<div id="activeElement-' + id + '-' + elemId +'" class="drawElement">' + mode[id].elements[elemId] + '</div>');
+									$()
+								}
+							}
+						}
+						else {
+							drawActiveElements(mode[id].mode, '#activeMode-' + id);
+						}
+					}
+				}
+			};
+
+			selector = '#free-category-active-entries';
+			drawActiveElements(selfObj.activeElems.mode, selector);
+			$('[id|="activeElementClear"]').unbind('click');
+			$('[id|="activeElementClear"]').bind('click', function () {
+				selfObj.binder.clearActiveElement.clickCb.call(this, me);
+			});
+		}
+	};
+	
+	/**
+	 * 
+	 */
+	this.drawListContent = function (data) {
+		var lvl, selectContent, mode, activeMode, drawActiveElements, selector;
+		selfObj = this;
+		selectContent = '#' + selfObj.destId + '-content';
+		$(selectContent).html('');
+		lvl = 1;
+		if ((activeMode = selfObj.activeElems.mode[data.main.modeIdTree[lvl]]) !== undefined) {
+			while (activeMode.elements === undefined) {
+				lvl++;
+				if ((activeMode = activeMode.mode[data.main.modeIdTree[lvl]]) === undefined) {
+					break;
+				}
+			}
+		}
+		mode = data.main.mode;
+		$('#' + selfObj.destId + '-search').show();
+		$('[id^="drawElement-"]').unbind();
+		$.each(data, function (key, val) {
+			var selectCategoryEntries, selectCategory;
+			selectCategoryEntries = selectContent;
+			if ((key !== 'main') && (mode !== 'search')) {
+				$(selectContent).append('<div id="category-' + val.id + '" class="categoryTitle"></div>');
+				selectCategory = '#category-' + val.id;
+				$(selectCategory).append('<div class="categoryEye"></div>');
+				$(selectCategory).append('<div class="categoryTitleText">' + key + '</div>');
+				$(selectContent).append('<div id="category-' + val.id + '-entries" class="category"></div>');
+				selectCategoryEntries += ' > ' + selectCategory + '-entries';
+			}
+			$.each(val.entries, function (key, val) {
+				var selected;
+				selected = '';
+				if ((selfObj.images.draw !== undefined) && 
+						(selfObj.images.draw[data.main.activeMode + '-' + val.id] !== undefined) &&
+						selfObj.images.draw[data.main.activeMode + '-' + val.id]) {
+					selected = ' selected';
+				}
+				$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + selected + '">' + val.name + '</div>').appendTo(selectCategoryEntries)
+				.bind('click', function () {
+					selfObj.binder.drawElement.clickCb.call(this, me);
+				});
+
+				if ((activeMode !== undefined) && (activeMode.counter > 0)) {
+					if ((activeMode.elements[val.id] !== undefined) && (activeMode.elements[val.id])) {
+						$(selectCategory).children('div.categoryEye').addClass('open');
+						$(selectCategory).next().show();
+					}
+				}
+			});
+		});
+	};
 
 	/**
 	 * draw menu content int main menu (callback from drawContent)
@@ -169,85 +337,10 @@ function MainMenu(destId, cache) {
 			return;
 		}
 		else if (data.main.mode === 'free') {
-			if (me.activeElems.counter > 0) {
-				$(selectContent).append('<div id="free-category-active" class="categoryTitle"></div>');
-				$('#free-category-active').append('<div class="categoryEye"></div>');
-				$('#free-category-active').append('<div class="categoryTitleText">Aktive Elemente</div>');
-				$(selectContent).append('<div id="free-category-active-entries" class="category"></div>');
-
-				/**
-				 * 
-				 */
-				drawActiveElements = function (mode, selector) {
-					for (var id in mode) {
-						if (mode.hasOwnProperty(id) && (mode[id].counter > 0)) {
-							$(selector).append('<div id="activeMode-' + id + '" class="activeMode"></div>');
-							$('#activeMode-' + id).append('<div id="activeMode-' + id + '-title" class="activeModeTitle">' + mode[id].name + '</div>');
-							if (mode[id].elements !== undefined) {
-								// write out entries
-								$('#activeMode-' + id).append('<div id="activeMode-' + id + '-entries" class="activeModeEntries"></div>');
-								mode[id].elements.sort();
-								for (var elemId in mode[id].elements) {
-									if (mode[id].elements.hasOwnProperty(elemId)) {
-										$('#activeMode-' + id + '-entries').append('<div id="activeMode-' + id + '-' + elemId +'" class="drawElement">' + mode[id].elements[elemId] + '</div>');
-									}
-								}
-							}
-							else {
-								drawActiveElements(mode[id].mode, '#activeMode-' + id);
-							}
-						}
-					}
-				};
-
-				selector = '#free-category-active-entries';
-				drawActiveElements(me.activeElems.mode, selector);
-			}
+			me.drawFreeContent.call(me);
 		}
 		else {
-			lvl = 1;
-			if ((activeMode = me.activeElems.mode[data.main.modeIdTree[lvl]]) !== undefined) {
-				while (activeMode.elements === undefined) {
-					lvl++;
-					if ((activeMode = activeMode.mode[data.main.modeIdTree[lvl]]) === undefined) {
-						break;
-					}
-				}
-			}
-			mode = data.main.mode;
-			$('#' + me.destId + '-search').show();
-			$('[id^="drawElement-"]').unbind();
-			$.each(data, function (key, val) {
-				var selectCategoryEntries, selectCategory;
-				selectCategoryEntries = selectContent;
-				if ((key !== 'main') && (mode !== 'search')) {
-					$(selectContent).append('<div id="category-' + val.id + '" class="categoryTitle"></div>');
-					selectCategory = '#category-' + val.id;
-					$(selectCategory).append('<div class="categoryEye"></div>');
-					$(selectCategory).append('<div class="categoryTitleText">' + key + '</div>');
-					$(selectContent).append('<div id="category-' + val.id + '-entries" class="category"></div>');
-					selectCategoryEntries += ' > ' + selectCategory + '-entries';
-				}
-				$.each(val.entries, function (key, val) {
-					var selected;
-					selected = '';
-					if ((me.images.draw !== undefined) && 
-							(me.images.draw[data.main.activeMode + '-' + val.id] !== undefined) &&
-							me.images.draw[data.main.activeMode + '-' + val.id]) {
-						selected = ' selected';
-					}
-					$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + selected + '">' + val.name + '</div>').appendTo(selectCategoryEntries).bind('click', function () {
-						me.binder.drawElement.clickCb.call(this, me);
-					});
-
-					if ((activeMode !== undefined) && (activeMode.counter > 0)) {
-						if ((activeMode.elements[val.id] !== undefined) && (activeMode.elements[val.id])) {
-							$(selectCategory).children('div.categoryEye').addClass('open');
-							$(selectCategory).next().show();
-						}
-					}
-				});
-			});
+			me.drawListContent.call(me, data);
 		}
 		$('.categoryTitle').unbind('click');
 		$('.categoryTitle').bind('click', function () {
@@ -399,6 +492,30 @@ function MainMenu(destId, cache) {
 		$('#map-canvas').width($('#map-canvas').width() - me.width - me.eyeWidth);
 		me.bindEye(me.destId, eyeAttr, midAttr);
 		cb();
+	};
+	
+	/**
+	 * 
+	 */
+	this.setEventBinderClearActiveElement = function (eStr, cb) {
+		if (eStr === 'click') {
+			me.binder.clearActiveElement.clickCb = cb;
+		}
+		else {
+			alert('setEventBinderClearActiveElement: bad eStr');
+		}
+	};
+	
+	/**
+	 * 
+	 */
+	this.setEventBinderDrawElement = function (eStr, cb) {
+		if (eStr === 'click') {
+			me.binder.drawElement.clickCb = cb;
+		}
+		else {
+			alert('setEventBinderDrawElement: bad eStr');
+		}
 	};
 
 	/**
