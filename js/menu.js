@@ -158,7 +158,7 @@ function MainMenu(destId, cache) {
 	 * @param array data: json array with data to draw 
 	 */
 	this.drawContentCb = function (data) {
-		var selectContent, mode, activeMode, drawActiveElements;
+		var selectContent, mode, activeMode, drawActiveElements, selector;
 		selectContent = '#' + me.destId + '-content';
 		$(selectContent).html('');
 		$('#' + me.destId + '-search').hide();
@@ -176,26 +176,29 @@ function MainMenu(destId, cache) {
 				/**
 				 * 
 				 */
-				drawActiveElements = function (mode) {
+				drawActiveElements = function (mode, selector) {
 					for (var id in mode) {
 						if (mode.hasOwnProperty(id)) {
-							$('#free-category-active-entries').append('<div id="activeMode-' + id + '">' + mode[id].name + '</div>');
+							$(selector).append('<div id="activeMode-' + id + '" class="activeMode"></div>');
+							$('#activeMode-' + id).append('<div id="activeMode-' + id + '-title" class="activeModeTitle">' + mode[id].name + '</div>');
 							if (mode[id].elements !== undefined) {
 								// write out entries
+								$('#activeMode-' + id).append('<div id="activeMode-' + id + '-entries" class="activeModeEntries"></div>');
 								for (var elemId in mode[id].elements) {
 									if (mode[id].elements.hasOwnProperty(elemId)) {
-										$('#activeMode-' + id).append('<div id="activeMode-' + id + '-' + elemId +'">' + mode[id].elements[elemId] + '</div>');
+										$('#activeMode-' + id + '-entries').append('<div id="activeMode-' + id + '-' + elemId +'" class="drawElement">' + mode[id].elements[elemId] + '</div>');
 									}
 								}
 							}
 							else {
-								drawActiveElements(mode[id].mode);
+								drawActiveElements(mode[id].mode, '#activeMode-' + id);
 							}
 						}
 					}
 				};
 				
-				drawActiveElements(me.activeElems.mode);
+				selector = '#free-category-active-entries';
+				drawActiveElements(me.activeElems.mode, selector);
 			}
 		}
 		else {

@@ -141,6 +141,43 @@
 	color:#CC0000;
 }
 
+.mainMenu * .activeMode {
+	padding-left:15px;
+	background-image: url("../img/stripes/hor4.png");
+    background-position: -2973px 6px;
+    background-repeat: no-repeat;
+}
+
+.mainMenu * .activeMode > .activeMode {
+	margin-left:-15px;
+	padding-left:55px;
+	background-position: -2933px 6px;
+}
+
+.mainMenu * .activeMode > .activeMode > .activeMode {
+	margin-left:-55px;
+	padding-left:95px;
+	background-position: -2893px 6px;
+}
+
+.mainMenu * .activeModeTitle {
+	font-size:small;
+	margin-bottom:-3px;
+}
+
+.mainMenu * .activeModeEntries {
+	margin-bottom:8px;
+	margin-top:2px;
+}
+
+.mainMenu * .activeMode > .activeMode > .activeModeEntries {
+	margin-left:-40px;
+}
+
+.mainMenu * .activeMode > .activeMode > .activeMode > .activeModeEntries {
+	margin-left:-80px;
+}
+
 .infoMenu {
 	width:200px;
 	min-height:385px;
