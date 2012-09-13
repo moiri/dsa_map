@@ -67,7 +67,7 @@ $(document).ready(function() {
 						}
 					}
 					else {
-						activeModeArr[i].mode[tabModeId].elements.splice(activeElementId, 1);
+						delete activeModeArr[i].mode[tabModeId].elements[activeElementId];
 						selfObj.activeElems.counter--;
 						for (j = 1; j <= i; j++) {
 							activeModeArr[j].mode[tabId[j]].counter--;
@@ -99,7 +99,7 @@ $(document).ready(function() {
 			}
 		});
 
-		url = "php/ajax/getJson.php?j=imgById&id=" + idElem[2];
+		url = "php/ajax/getJson.php?j=imgById&id=" + activeElementId;
 		$.getJSON(url, function (data) {
 			map.loadImage(data, map.drawImageToCanvas, draw);
 		});

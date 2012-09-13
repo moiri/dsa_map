@@ -149,7 +149,9 @@ function MainMenu(destId, cache) {
 		if ((pattern !== undefined) && (pattern !== '')) {
 			url += '&pattern=' + pattern;
 		}
-		$.getJSON(url, me.drawContentCb);
+		$.getJSON(url, function (data) {
+			me.drawContentCb.call(me, data);
+		});
 	};
 
 	/**
@@ -178,7 +180,7 @@ function MainMenu(destId, cache) {
 				 */
 				drawActiveElements = function (mode, selector) {
 					for (var id in mode) {
-						if (mode.hasOwnProperty(id)) {
+						if (mode.hasOwnProperty(id) && (mode[id].counter > 0)) {
 							$(selector).append('<div id="activeMode-' + id + '" class="activeMode"></div>');
 							$('#activeMode-' + id).append('<div id="activeMode-' + id + '-title" class="activeModeTitle">' + mode[id].name + '</div>');
 							if (mode[id].elements !== undefined) {
