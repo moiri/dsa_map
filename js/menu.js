@@ -111,6 +111,10 @@ function MainMenu(destId, cache) {
 	me.binder.clearActiveElement.clickCb = function () {
 		alert('no clearActiveElement click event binded, use "setEventBinderClearActiveElement" to define the event');
 	};
+	me.binder.clearActiveElements = [];
+	me.binder.clearActiveElements.clickCb = function () {
+		alert('no clearActiveElements click event binded, use "setEventBinderClearActiveElements" to define the event');
+	};
 	me.binder.drawElement = [];
 	me.binder.drawElement.clickCb = function () {
 		alert('no drawElement click event binded, use "setEventBinderDrawElement" to define the event');
@@ -124,12 +128,13 @@ function MainMenu(destId, cache) {
 	 * clear all active elements from the cache (it does not remove the cached images)
 	 */
 	this.clearActiveElements = function () {
-		var id;
-		$('[id|="mode"]').removeClass(me.cssSelected);
-		me.activeElems.mode = [];
-		me.activeElems.counter = 0;
-		for (id in me.images.draw) {
-			me.images.draw[id] = false;
+		var id, selfObj;
+		selfObj = this;
+		$('[id|="mode"]').removeClass(selfObj.cssSelected);
+		selfObj.activeElems.mode = [];
+		selfObj.activeElems.counter = 0;
+		for (id in selfObj.images.draw) {
+			selfObj.images.draw[id] = false;
 		}
 		$('#free-category-active-entries').html('');
 	};
@@ -332,6 +337,7 @@ function MainMenu(destId, cache) {
 		$(selectContent).html('');
 		if (selfObj.activeElems.counter > 0) {
 			$(selectContent).append('<div id="free-category-active" class="categoryTitle"></div>');
+			$('#free-category-active').append('<div id="activeElementsClear" class="clearElement"></div>')
 			$('#free-category-active').append('<div class="categoryEye open"></div>');
 			$('#free-category-active').append('<div class="categoryTitleText">Aktive Elemente</div>');
 			$(selectContent).append('<div id="free-category-active-entries" class="category"></div>');
@@ -370,6 +376,10 @@ function MainMenu(destId, cache) {
 			$('[id|="activeElementClear"]').unbind('click');
 			$('[id|="activeElementClear"]').bind('click', function () {
 				selfObj.binder.clearActiveElement.clickCb.call(this, me);
+			});
+			$('#activeElementsClear').unbind('click');
+			$('#activeElementsClear').bind('click', function () {
+				selfObj.binder.clearActiveElements.clickCb.call(selfObj);
 			});
 		}
 	};
@@ -520,6 +530,22 @@ function MainMenu(destId, cache) {
 		}
 		else {
 			alert('setEventBinderClearActiveElement: bad eStr');
+		}
+	};
+	
+	/**
+	 * Setter to bind an event on clearActiveElements (id-refix: activeElementsClear).
+	 * This is used if the binded function must acces other objects than mainMenu
+	 * 
+	 * @param string eStr: string to define the event
+	 * @param function cb: callback function to be evoked when event occures
+	 */
+	this.setEventBinderClearActiveElements = function (eStr, cb) {
+		if (eStr === 'click') {
+			me.binder.clearActiveElements.clickCb = cb;
+		}
+		else {
+			alert('setEventBinderClearActiveElements: bad eStr');
 		}
 	};
 	

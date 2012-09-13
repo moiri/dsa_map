@@ -60,9 +60,13 @@ $(document).ready(function() {
 		});
 		selfObj.drawFreeContent.call(selfObj);
 	});
+	mainMenu.setEventBinderClearActiveElements('click', function () {
+		this.clearActiveElements.call(this);
+		this.drawFreeContent.call(this);
+		map.drawImageToCanvas();
+	});
 	mainMenu.setEventBinderFreeMode('click', function () {
-		//mainMenu.clearActiveElements();
-		//map.drawImageToCanvas();
+		// nothing to do, don't need this binder...
 	});
 	mainMenu.setEventBinderToggleMenu('click', function () {
 		map.initMapOnCanvas();
