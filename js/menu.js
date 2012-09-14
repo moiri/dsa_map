@@ -129,13 +129,17 @@ function MainMenu(destId, cache) {
 	me.binder.mode.clickCb = function () {
 		alert('no mode click event binded, use "setEventBinderMode" to define the event');
 	};
+	me.binder.showDrawElementInfo = [];
+	me.binder.showDrawElementInfo.clickCb = function () {
+		alert('no showDrawElementInfo click event binded, use "setEventBinderShowDrawElementInfo" to define the event');
+	};
 
 	/**
 	 * clear all active elements from the cache (it does not remove the cached images)
 	 */
 	this.clearActiveElements = function () {
 		var id;
-		$('[id|="mode"]').removeClass(me.cssSelected);
+		$('[id|="mode"]').removeClass(me.cssActive);
 		me.activeElems.mode = [];
 		me.activeElems.counter = 0;
 		for (id in me.images.draw) {
@@ -428,8 +432,13 @@ function MainMenu(destId, cache) {
 				if ((me.images.draw !== undefined) && 
 						(me.images.draw[data.main.activeMode + '-' + val.id] !== undefined) &&
 						me.images.draw[data.main.activeMode + '-' + val.id]) {
-					selected = ' ' + me.cssSelected;
+					selected = ' ' + me.cssActive;
 					title = 'Element auswählen';
+					$('<div id="selectEye-' + data.main.activeMode + '-' + val.id 
+							+ '" class="selectEye"></div>').appendTo(selectCategoryEntries)
+							.bind('click', function () {
+								me.binder.showDrawElementInfo.clickCb.call(this, me);
+							});
 				}
 				$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + selected + '" title="' + title + '">' + val.name + '</div>').appendTo(selectCategoryEntries)
 				.bind('click', function () {
@@ -512,10 +521,10 @@ function MainMenu(destId, cache) {
 				$('[id|="mode-0"][id$="-' + tabModeId + '"]').each(function () {
 					activeModeArr[i].mode[tabModeId].name = $(this).attr('title');
 					if (activeModeArr[i].mode[tabModeId].counter > 0) {
-						$(this).addClass(me.cssSelected);
+						$(this).addClass(me.cssActive);
 					}
 					else {
-						$(this).removeClass(me.cssSelected);
+						$(this).removeClass(me.cssActive);
 					}
 				});
 			}
@@ -599,6 +608,22 @@ function MainMenu(destId, cache) {
 		}
 		else {
 			alert('setEventBinderMode: bad eStr');
+		}
+	};
+	
+	/**
+	 * Setter to bind an event on showDrawElementInfo elements.
+	 * This is used if the binded function must acces other objects than mainMenu
+	 * 
+	 * @param string eStr: string to define the event
+	 * @param function cb: callback function to be evoked when event occures
+	 */
+	this.setEventBinderShowDrawElementInfo = function (eStr, cb) {
+		if (eStr === 'click') {
+			me.binder.showDrawElementInfo.clickCb = cb;
+		}
+		else {
+			alert('setEventBinderShowDrawElementInfo: bad eStr');
 		}
 	};
 }

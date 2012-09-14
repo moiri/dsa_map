@@ -1,37 +1,37 @@
 .mainMenu {
-	margin-left:50px;
-	margin-top:50px;
-	display:inline-block;
+	margin-left: 50px;
+	margin-top: 50px;
+	display: inline-block;
 }
 
-.mainMenu > .contentBox {
-	padding:15px;
-	background-color:#FFFFFF;
-	position:relative;
-	min-height:385px;
-	width:186px;
-	z-index:1;
+.mainMenu>.contentBox {
+	padding: 15px;
+	background-color: #FFFFFF;
+	position: relative;
+	min-height: 385px;
+	width: 186px;
+	z-index: 1;
 }
 
 .mainMenu * .content {
-	margin:5px;
+	margin: 5px;
 }
 
 .tab {
-	position:relative;
-	z-index:0;
-	cursor:pointer;
+	position: relative;
+	z-index: 0;
+	cursor: pointer;
 }
 
 .tab.active {
-	z-index:2;
+	z-index: 2;
 }
 
 .tab.l0 {
-	position:absolute;
-	top:18px;
-	height:26px;
-	width:26px;
+	position: absolute;
+	top: 18px;
+	height: 26px;
+	width: 26px;
 	background-image: url("../img/icon/init_open.png");
 }
 
@@ -39,70 +39,70 @@
 	background-image: url("../img/icon/init_shut.png");
 }
 
-.leftColumn > .tab.l0 {
-	left:18px;
+.leftColumn>.tab.l0 {
+	left: 18px;
 }
 
-.rightColumn > .tab.l0 {
-	right:18px;
+.rightColumn>.tab.l0 {
+	right: 18px;
 }
 
 .mainMenu * .tab.l1 {
-	margin-top:-45px;
-	float:left;
-	padding:0 2px;
-	width:45px;
-	height:55px;
+	margin-top: -45px;
+	float: left;
+	padding: 0 2px;
+	width: 45px;
+	height: 55px;
 }
 
 .mainMenu * .tab.l1:hover {
-	margin-top:-48px;
+	margin-top: -48px;
 }
 
 .mainMenu * .tab.l2 {
-	margin-left:-45px;
-	padding:2px 0;
-	width:55px;
-	height:45px;
+	margin-left: -45px;
+	padding: 2px 0;
+	width: 55px;
+	height: 45px;
 }
 
 .mainMenu * .tab.l2:hover {
-	margin-left:-48px;
+	margin-left: -48px;
 }
 
 .mainMenu * .tab.l3 {
-	margin-left:-40px;
-	padding:2px 0;
-	width:50px;
-	height:40px;
+	margin-left: -40px;
+	padding: 2px 0;
+	width: 50px;
+	height: 40px;
 }
 
 .mainMenu * .tab.l3:hover {
-	margin-left:-42px;
+	margin-left: -42px;
 }
 
-.mainMenu > .tabContTitle {
-	padding:0 10px;
+.mainMenu>.tabContTitle {
+	padding: 0 10px;
 }
 
-.mainMenu > .tabCont {
-	display:none;
+.mainMenu>.tabCont {
+	display: none;
 }
 
-.mainMenu > .tabCont.l2 {
-	padding:10px 0;
-	position:absolute;
+.mainMenu>.tabCont.l2 {
+	padding: 10px 0;
+	position: absolute;
 }
 
 .mainMenu * .tabCont.l3 {
-	padding-bottom:10px;
+	padding-bottom: 10px;
 }
 
 .mainMenu * .categoryEye {
-	float:left;
-	width:15px;
-	height:15px;
-	margin-right:5px;
+	float: left;
+	width: 15px;
+	height: 15px;
+	margin-right: 5px;
 	background-image: url("../img/icon/eye_shut.png");
 }
 
@@ -111,28 +111,37 @@
 }
 
 .mainMenu * .categoryTitle {
-	cursor:pointer;
+	cursor: pointer;
 }
 
 .mainMenu * .categoryTitleText {
-	font-weight:bold;
+	font-weight: bold;
 }
 
 .mainMenu * .category {
-	display:none;
-	margin-left:10px;
+	display: none;
+	margin-left: 10px;
 }
 
 .mainMenu * .drawElement {
-	text-indent:-10px;
-	margin-left:10px;
-	cursor:pointer;
+	text-indent: -10px;
+	margin-left: 10px;
+	cursor: pointer;
 }
 
 .mainMenu * .drawElement:hover {
-	color:#550000;
+	color: #550000;
 }
 
+.mainMenu * .drawElement.active, .mainMenu * .drawElement.selected {
+	color: #990000;
+}
+
+.mainMenu * .drawElement.active:hover, .mainMenu * .drawElement.selected:hover {
+	color: #CC0000;
+}
+
+/*
 .mainMenu * .drawElement.selected.active, .mainMenu * .drawElement.active {
 	color:#990000;
 }
@@ -148,13 +157,31 @@
 .mainMenu * .drawElement.selected:hover {
 	color:#0000CC;
 }
+*/
+.mainMenu * .clearElement,.mainMenu * .selectEye {
+	cursor: pointer;
+	float: right;
+}
+
+.mainMenu * .clearElement,.mainMenu * .selectEye {
+	cursor: pointer;
+	float: right;
+}
 
 .mainMenu * .clearElement {
-	width:19px;
-	height:18px;
-	cursor:pointer;
+	width: 19px;
+	height: 18px;
 	background-image: url("../img/stripes/cross.png");
-	float:right;
+}
+
+.mainMenu * .selectEye {
+	width: 15px;
+	height: 15px;
+	background-image: url("../img/icon/eye_shut.png");
+}
+
+.mainMenu * .selectEye.selected {
+	background-image: url("../img/icon/eye_open.png");
 }
 
 .mainMenu * .clearElement:hover {
@@ -162,54 +189,54 @@
 }
 
 .mainMenu * .activeMode {
-	padding-left:15px;
+	padding-left: 15px;
 	background-image: url("../img/stripes/hor4.png");
-    background-position: -2973px 6px;
-    background-repeat: no-repeat;
+	background-position: -2973px 6px;
+	background-repeat: no-repeat;
 }
 
-.mainMenu * .activeMode > .activeMode {
-	margin-left:-15px;
-	padding-left:55px;
+.mainMenu * .activeMode>.activeMode {
+	margin-left: -15px;
+	padding-left: 55px;
 	background-position: -2933px 6px;
 }
 
-.mainMenu * .activeMode > .activeMode > .activeMode {
-	margin-left:-55px;
-	padding-left:95px;
+.mainMenu * .activeMode>.activeMode>.activeMode {
+	margin-left: -55px;
+	padding-left: 95px;
 	background-position: -2893px 6px;
 }
 
 .mainMenu * .activeModeTitle {
-	font-size:small;
-	margin-bottom:-3px;
+	font-size: small;
+	margin-bottom: -3px;
 }
 
 .mainMenu * .activeModeEntries {
-	margin-bottom:10px;
-	margin-top:2px;
+	margin-bottom: 10px;
+	margin-top: 2px;
 }
 
-.mainMenu * .activeMode > .activeMode > .activeModeEntries {
-	margin-left:-50px;
+.mainMenu * .activeMode>.activeMode>.activeModeEntries {
+	margin-left: -50px;
 }
 
-.mainMenu * .activeMode > .activeMode > .activeMode > .activeModeEntries {
-	margin-left:-90px;
+.mainMenu * .activeMode>.activeMode>.activeMode>.activeModeEntries {
+	margin-left: -90px;
 }
 
 .infoMenu {
-	width:200px;
-	min-height:385px;
-	margin-top:50px;
+	width: 200px;
+	min-height: 385px;
+	margin-top: 50px;
 }
 
-.infoMenu > .content {
-	padding:15px;
+.infoMenu>.content {
+	padding: 15px;
 }
 
 .infoMenu * .noInfoActive {
-	font-style:italic;
-	color:#AAAAAA;
-	text-align:center;
+	font-style: italic;
+	color: #AAAAAA;
+	text-align: center;
 }
