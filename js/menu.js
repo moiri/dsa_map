@@ -106,6 +106,7 @@ function Menu() {
 function MainMenu(destId, cache) {
 	var me = this;
 	me.destId = destId;
+	me.selectContent = '#' + destId + "-content";
 	me.images = cache.images;
 	me.activeElems = cache.activeElems;
 	me.binder.activeElement = [];
@@ -124,22 +125,21 @@ function MainMenu(destId, cache) {
 	me.binder.drawElement.clickCb = function () {
 		alert('no drawElement click event binded, use "setEventBinderDrawElement" to define the event');
 	};
-	me.binder.freeMode = [];
-	me.binder.freeMode.clickCb = function () {
-		alert('no freeMode click event binded, use "setEventBinderFreeMode" to define the event');
+	me.binder.mode = [];
+	me.binder.mode.clickCb = function () {
+		alert('no mode click event binded, use "setEventBinderMode" to define the event');
 	};
 
 	/**
 	 * clear all active elements from the cache (it does not remove the cached images)
 	 */
 	this.clearActiveElements = function () {
-		var id, selfObj;
-		selfObj = this;
-		$('[id|="mode"]').removeClass(selfObj.cssSelected);
-		selfObj.activeElems.mode = [];
-		selfObj.activeElems.counter = 0;
-		for (id in selfObj.images.draw) {
-			selfObj.images.draw[id] = false;
+		var id;
+		$('[id|="mode"]').removeClass(me.cssSelected);
+		me.activeElems.mode = [];
+		me.activeElems.counter = 0;
+		for (id in me.images.draw) {
+			me.images.draw[id] = false;
 		}
 		$('#free-category-active-entries').html('');
 	};
@@ -151,12 +151,12 @@ function MainMenu(destId, cache) {
 	 */
 	this.drawContent = function (pattern) {
 		var url;
-		url = 'php/ajax/getJson.php?j=content';
+		url = 'php/ajax/getJson.php?j=contentMain';
 		if ((pattern !== undefined) && (pattern !== '')) {
 			url += '&pattern=' + pattern;
 		}
 		$.getJSON(url, function (data) {
-			me.drawContentCb.call(me, data);
+			me.drawContentCb(data);
 		});
 	};
 
@@ -166,19 +166,20 @@ function MainMenu(destId, cache) {
 	 * @param array data: json array with data to draw 
 	 */
 	this.drawContentCb = function (data) {
-		var selectContent, mode, activeMode, drawActiveElements, selector;
-		selectContent = '#' + me.destId + '-content';
-		$(selectContent).html('');
+		var mode, activeMode, drawActiveElements, selector;
+		$(me.selectContent).html('');
 		$('#' + me.destId + '-search').hide();
 		if (data === -99) {
-			$(selectContent).append('<div>server error</div>');
+			$(me.selectContent).append('<div class="noInfoActive">server error</div>');
 			return;
 		}
 		else if (data.main.mode === 'free') {
-			me.drawFreeContent.call(me);
+			//me.drawFreeContent.call(me);
+			me.drawFreeContent();
 		}
 		else {
-			me.drawListContent.call(me, data);
+			//me.drawListContent.call(me, data);
+			me.drawListContent(data);
 		}
 		$('.categoryTitle').unbind('click');
 		$('.categoryTitle').bind('click', function () {
@@ -305,10 +306,8 @@ function MainMenu(destId, cache) {
 			me.setMode(lastId, function () {
 				me.drawContent();
 			});
-
-			if ($(this).hasClass('free')) {
-				me.binder.freeMode.clickCb.call(me);
-			}
+			
+			me.binder.mode.clickCb.call(this, me);
 		});
 
 		// bind search key up events
@@ -336,16 +335,14 @@ function MainMenu(destId, cache) {
 	 * draws the content of the free mode menu
 	 */
 	this.drawFreeContent = function () {
-		var selector, drawActiveElements, selfObj, selectContent;
-		selfObj = this;
-		selectContent = '#' + selfObj.destId + '-content';
-		$(selectContent).html('');
-		if (selfObj.activeElems.counter > 0) {
-			$(selectContent).append('<div id="free-category-active" class="categoryTitle"></div>');
+		var selector, drawActiveElements;
+		$(me.selectContent).html('');
+		if (me.activeElems.counter > 0) {
+			$(me.selectContent).append('<div id="free-category-active" class="categoryTitle"></div>');
 			$('#free-category-active').append('<div id="activeElementsClear" class="clearElement" title="Alle Elemente deaktivieren"></div>')
 			$('#free-category-active').append('<div class="categoryEye open"></div>');
 			$('#free-category-active').append('<div class="categoryTitleText">Aktive Elemente</div>');
-			$(selectContent).append('<div id="free-category-active-entries" class="category"></div>');
+			$(me.selectContent).append('<div id="free-category-active-entries" class="category"></div>');
 			$('#free-category-active-entries').show();
 
 			/**
@@ -377,18 +374,18 @@ function MainMenu(destId, cache) {
 			};
 
 			selector = '#free-category-active-entries';
-			drawActiveElements(selfObj.activeElems.mode, selector);
+			drawActiveElements(me.activeElems.mode, selector);
 			$('[id|="activeElement"]').unbind('click');
 			$('[id|="activeElement"]').bind('click', function () {
-				selfObj.binder.activeElement.clickCb.call(this, me);
+				me.binder.activeElement.clickCb.call(this, me);
 			});
 			$('[id|="activeElementClear"]').unbind('click');
 			$('[id|="activeElementClear"]').bind('click', function () {
-				selfObj.binder.clearActiveElement.clickCb.call(this, me);
+				me.binder.clearActiveElement.clickCb.call(this, me);
 			});
 			$('#activeElementsClear').unbind('click');
 			$('#activeElementsClear').bind('click', function () {
-				selfObj.binder.clearActiveElements.clickCb.call(selfObj);
+				me.binder.clearActiveElements.clickCb.call(this, me);
 			});
 		}
 	};
@@ -399,12 +396,10 @@ function MainMenu(destId, cache) {
 	 * @param object data: json object containing all elements to be drawn
 	 */
 	this.drawListContent = function (data) {
-		var lvl, selectContent, mode, activeMode, drawActiveElements, selector;
-		selfObj = this;
-		selectContent = '#' + selfObj.destId + '-content';
-		$(selectContent).html('');
+		var lvl, mode, activeMode, drawActiveElements, selector;
+		$(me.selectContent).html('');
 		lvl = 1;
-		if ((activeMode = selfObj.activeElems.mode[data.main.modeIdTree[lvl]]) !== undefined) {
+		if ((activeMode = me.activeElems.mode[data.main.modeIdTree[lvl]]) !== undefined) {
 			while (activeMode.elements === undefined) {
 				lvl++;
 				if ((activeMode = activeMode.mode[data.main.modeIdTree[lvl]]) === undefined) {
@@ -413,32 +408,32 @@ function MainMenu(destId, cache) {
 			}
 		}
 		mode = data.main.mode;
-		$('#' + selfObj.destId + '-search').show();
+		$('#' + me.destId + '-search').show();
 		$('[id^="drawElement-"]').unbind();
 		$.each(data, function (key, val) {
 			var selectCategoryEntries, selectCategory;
-			selectCategoryEntries = selectContent;
+			selectCategoryEntries = me.selectContent;
 			if ((key !== 'main') && (mode !== 'search')) {
-				$(selectContent).append('<div id="category-' + val.id + '" class="categoryTitle"></div>');
+				$(me.selectContent).append('<div id="category-' + val.id + '" class="categoryTitle"></div>');
 				selectCategory = '#category-' + val.id;
 				$(selectCategory).append('<div class="categoryEye"></div>');
 				$(selectCategory).append('<div class="categoryTitleText">' + key + '</div>');
-				$(selectContent).append('<div id="category-' + val.id + '-entries" class="category"></div>');
+				$(me.selectContent).append('<div id="category-' + val.id + '-entries" class="category"></div>');
 				selectCategoryEntries += ' > ' + selectCategory + '-entries';
 			}
 			$.each(val.entries, function (key, val) {
 				var selected, title;
 				selected = '';
 				title = 'Element aktivieren';
-				if ((selfObj.images.draw !== undefined) && 
-						(selfObj.images.draw[data.main.activeMode + '-' + val.id] !== undefined) &&
-						selfObj.images.draw[data.main.activeMode + '-' + val.id]) {
-					selected = ' ' + selfObj.cssSelected;
+				if ((me.images.draw !== undefined) && 
+						(me.images.draw[data.main.activeMode + '-' + val.id] !== undefined) &&
+						me.images.draw[data.main.activeMode + '-' + val.id]) {
+					selected = ' ' + me.cssSelected;
 					title = 'Element auswählen';
 				}
 				$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + selected + '" title="' + title + '">' + val.name + '</div>').appendTo(selectCategoryEntries)
 				.bind('click', function () {
-					selfObj.binder.drawElement.clickCb.call(this, me);
+					me.binder.drawElement.clickCb.call(this, me);
 				});
 
 				if ((activeMode !== undefined) && (activeMode.counter > 0)) {
@@ -461,8 +456,7 @@ function MainMenu(destId, cache) {
 	 * @param bool draw: if true, the element is added, else it is removed
 	 */
 	this.handleActiveElements = function (id, name, modeId, draw) {
-		var activeModeArr, hasActiveElems, tabModeId, selfObj;
-		selfObj = this;
+		var activeModeArr, hasActiveElems, tabModeId;
 
 		// highlight tabs and elements if active
 		$('[id|="mode-0"][id$="-' + modeId + '"]').each(function () {
@@ -489,14 +483,14 @@ function MainMenu(destId, cache) {
 					}
 					if (draw) {
 						activeModeArr[i].mode[tabModeId].elements[id] = name;
-						selfObj.activeElems.counter++;
+						me.activeElems.counter++;
 						for (j = 1; j <= i; j++) {
 							activeModeArr[j].mode[tabId[j]].counter++;
 						}
 					}
 					else {
 						delete activeModeArr[i].mode[tabModeId].elements[id];
-						selfObj.activeElems.counter--;
+						me.activeElems.counter--;
 						for (j = 1; j <= i; j++) {
 							activeModeArr[j].mode[tabId[j]].counter--;
 						}
@@ -518,10 +512,10 @@ function MainMenu(destId, cache) {
 				$('[id|="mode-0"][id$="-' + tabModeId + '"]').each(function () {
 					activeModeArr[i].mode[tabModeId].name = $(this).attr('title');
 					if (activeModeArr[i].mode[tabModeId].counter > 0) {
-						$(this).addClass(selfObj.cssSelected);
+						$(this).addClass(me.cssSelected);
 					}
 					else {
-						$(this).removeClass(selfObj.cssSelected);
+						$(this).removeClass(me.cssSelected);
 					}
 				});
 			}
@@ -599,12 +593,12 @@ function MainMenu(destId, cache) {
 	 * @param string eStr: string to define the event
 	 * @param function cb: callback function to be evoked when event occures
 	 */
-	this.setEventBinderFreeMode = function (eStr, cb) {
+	this.setEventBinderMode = function (eStr, cb) {
 		if (eStr === 'click') {
-			me.binder.freeMode.clickCb = cb;
+			me.binder.mode.clickCb = cb;
 		}
 		else {
-			alert('setEventBinderFreeMode: bad eStr');
+			alert('setEventBinderMode: bad eStr');
 		}
 	};
 }
@@ -619,18 +613,16 @@ MainMenu.prototype = new Menu();
 function InfoMenu(destId) {
 	var me = this;
 	me.destId = destId;
+	me.selectContent = '#' + me.destId + '-content';
 	
 	/**
 	 * get menu content with ajax and on success draw it
 	 * 
-	 * @param string pattern: serach pattern
+	 * @param string id: id of active element
 	 */
-	this.drawContent = function (pattern) {
+	this.drawContent = function (id, modeId) {
 		var url;
-		url = 'php/ajax/getJson.php?j=contentInfo';
-		if ((pattern !== undefined) && (pattern !== '')) {
-			url += '&pattern=' + pattern;
-		}
+		url = 'php/ajax/getJson.php?j=contentInfo&id=' + id + '&modeId=' + modeId;
 		$.getJSON(url, function (data) {
 			me.drawContentCb.call(me, data);
 		});
@@ -642,25 +634,15 @@ function InfoMenu(destId) {
 	 * @param array data: json array with data to draw 
 	 */
 	this.drawContentCb = function (data) {
-		var selectContent, mode, activeMode, drawActiveElements, selector;
-		selectContent = '#' + me.destId + '-content';
-		$(selectContent).html('');
-		$('#' + me.destId + '-search').hide();
+		var mode, activeMode, drawActiveElements, selector;
+		$(me.selectContent).html('');
 		if (data === -99) {
-			$(selectContent).append('<div>server error</div>');
+			$(me.selectContent).append('<div class="noInfoActive">server error</div>');
 			return;
 		}
-		else if (data.main.mode === 'free') {
-			me.drawFreeContent.call(me);
-		}
 		else {
-			me.drawListContent.call(me, data);
+			me.drawInfoContent.call(me, data);
 		}
-		$('.categoryTitle').unbind('click');
-		$('.categoryTitle').bind('click', function () {
-			$(this).children('div.categoryEye').toggleClass('open');
-			$(this).next().toggle('fast');
-		});
 	};
 
 	/**
@@ -689,12 +671,29 @@ function InfoMenu(destId) {
 				marginRight: '34px',
 		};
 
-		me.setWidth($('#' + destId).width());
+		me.setWidth($('#' + me.destId).width());
 		$('#map-canvas').width($('#map-canvas').width() - me.width - me.eyeWidth);
-		$('#' + destId).append('<div class="content"></div>');
-		$('#' + destId + ' > .content').append('<div class="noInfoActive">kein Element ausgew&auml;hlt</div>');
+		$('#' + me.destId).append('<div id="' + me.destId + '-content" class="content"></div>');
+		me.drawInitContent();
 		me.bindEye(me.destId, eyeAttr, midAttr);
 		cb();
+	};
+	
+	/**
+	 * draw info of selected content
+	 * 
+	 * @param object data: json object containing info of active element to draw
+	 */
+	this.drawInfoContent = function (data) {
+		$(me.selectContent).append('<div class="noInfoActive">server error</div>')
+	};
+	
+	/**
+	 * draw initial info to menu
+	 */
+	this.drawInitContent = function () {
+		$(me.selectContent).html('');
+		$(me.selectContent).append('<div class="noInfoActive">kein Element ausgew&auml;hlt</div>');
 	};
 }
 

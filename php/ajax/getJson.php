@@ -13,7 +13,7 @@ header('Content-Type: text/plain');
 $map = new MapDbMapper(DBSERVER,DBNAME,DBUSER,DBPASSWORD);
 $res = false;
 
-if ($_GET['j'] == 'content') {
+if ($_GET['j'] == 'contentMain') {
 	// main menu content requested
 	// get mode information
 	$res = $map->selectByUid('mode', $_SESSION['mode']);
@@ -33,6 +33,9 @@ if ($_GET['j'] == 'content') {
 		$res['main']['modeIdTree'] = $modeTree;
 		$res['main']['activeMode'] = $_SESSION['mode'];
 	}
+}
+else if ($_GET['j'] == 'contentInfo') {
+	$res = true;
 }
 else if ($_GET['j'] == 'tab') {
 	// tabs requested -> return menu structure
