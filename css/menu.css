@@ -203,3 +203,13 @@
 	min-height:385px;
 	margin-top:50px;
 }
+
+.infoMenu > .content {
+	padding:15px;
+}
+
+.infoMenu * .noInfoActive {
+	font-style:italic;
+	color:#AAAAAA;
+	text-align:center;
+}

@@ -619,6 +619,49 @@ MainMenu.prototype = new Menu();
 function InfoMenu(destId) {
 	var me = this;
 	me.destId = destId;
+	
+	/**
+	 * get menu content with ajax and on success draw it
+	 * 
+	 * @param string pattern: serach pattern
+	 */
+	this.drawContent = function (pattern) {
+		var url;
+		url = 'php/ajax/getJson.php?j=contentInfo';
+		if ((pattern !== undefined) && (pattern !== '')) {
+			url += '&pattern=' + pattern;
+		}
+		$.getJSON(url, function (data) {
+			me.drawContentCb.call(me, data);
+		});
+	};
+
+	/**
+	 * draw menu content int main menu (callback from drawContent)
+	 * 
+	 * @param array data: json array with data to draw 
+	 */
+	this.drawContentCb = function (data) {
+		var selectContent, mode, activeMode, drawActiveElements, selector;
+		selectContent = '#' + me.destId + '-content';
+		$(selectContent).html('');
+		$('#' + me.destId + '-search').hide();
+		if (data === -99) {
+			$(selectContent).append('<div>server error</div>');
+			return;
+		}
+		else if (data.main.mode === 'free') {
+			me.drawFreeContent.call(me);
+		}
+		else {
+			me.drawListContent.call(me, data);
+		}
+		$('.categoryTitle').unbind('click');
+		$('.categoryTitle').bind('click', function () {
+			$(this).children('div.categoryEye').toggleClass('open');
+			$(this).next().toggle('fast');
+		});
+	};
 
 	/**
 	 * draw the menu
@@ -648,6 +691,8 @@ function InfoMenu(destId) {
 
 		me.setWidth($('#' + destId).width());
 		$('#map-canvas').width($('#map-canvas').width() - me.width - me.eyeWidth);
+		$('#' + destId).append('<div class="content"></div>');
+		$('#' + destId + ' > .content').append('<div class="noInfoActive">kein Element ausgew&auml;hlt</div>');
 		me.bindEye(me.destId, eyeAttr, midAttr);
 		cb();
 	};
