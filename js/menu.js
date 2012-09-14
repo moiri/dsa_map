@@ -252,13 +252,13 @@ function MainMenu(destId, cache) {
 				var cssClass, imgCssClass;
 				cssClass = 'tab l' + lvl;
 				if ((key === 0) && (lvl === 1)) {
-					cssClass += ' active';
+					cssClass += ' ' + me.cssSelected;
 				}
 				imgCssClass = "tabModeId_" + val.id;
 				$('html > head > style').append(" ." + imgCssClass + " { background: url('img/" + val.iconPath + "') no-repeat scroll 50% top; }\n");
-				$('html > head > style').append(" ." + imgCssClass + ".selected { background: url('img/" + val.iconPath.replace(/\./g, "_sel.") + "') no-repeat scroll 50% top; }\n");
+				$('html > head > style').append(" ." + imgCssClass + "." + me.cssActive + " { background: url('img/" + val.iconPath.replace(/\./g, "_sel.") + "') no-repeat scroll 50% top; }\n");
 				//$('html > head > style').append(" ." + imgCssClass + ":hover { background: url('img/" + val.iconPath.replace(/\./g, "_hov.") + "') no-repeat scroll 50% top; }\n");
-				//$('html > head > style').append(" ." + imgCssClass + ".selected:hover { background: url('img/" + val.iconPath.replace(/\./g, "_hov_sel.") + "') no-repeat scroll 50% top; }\n");
+				//$('html > head > style').append(" ." + imgCssClass + "." + me.cssActive + ":hover { background: url('img/" + val.iconPath.replace(/\./g, "_hov_sel.") + "') no-repeat scroll 50% top; }\n");
 				cssClass += ' ' + imgCssClass;
 				cssClass += (val.freeMode === '1') ? ' free' : '';
 				$('<div/>', {
@@ -287,7 +287,7 @@ function MainMenu(destId, cache) {
 		$('[id^="mode-"]').bind('click', function () {
 			var idElem, i, id, lastId, myId, url;
 			$('[id^="tabCont-"]').hide();
-			$('[id^="mode-"]').removeClass('active');
+			$('[id^="mode-"]').removeClass(me.cssSelected);
 			$('#' + me.destId + '-search').val('Suche');
 			$('#' + me.destId + '-search').addClass('init');
 
@@ -303,7 +303,7 @@ function MainMenu(destId, cache) {
 			for (i = 0; i < idElem.length; i++) {
 				id += '-' + idElem[i];
 				$('#tabCont-' + idElem[i]).show(); // show backwards
-				$('#mode' + id).addClass('active'); // set active backwards
+				$('#mode' + id).addClass(me.cssSelected); // set active backwards
 				lastId = idElem[i];
 			}
 
@@ -364,9 +364,8 @@ function MainMenu(destId, cache) {
 							//mode[id].elements.sort();
 							for (elemId in mode[id].elements) {
 								if (mode[id].elements.hasOwnProperty(elemId)) {
-									$('#activeMode-' + id + '-entries').append('<div id="activeElementClear-' + id + '-' + elemId +'" class="clearElement" title="Element deaktivieren"></div>')
-									.append('<div id="activeElement-' + id + '-' + elemId +'" class="drawElement" title="Element auswählen">' + mode[id].elements[elemId] + '</div>');
-									$()
+									$('#activeMode-' + id + '-entries').append('<div id="activeElementClear-' + id + '-' + elemId +'" class="clearElement"></div>')
+									.append('<div id="activeElement-' + id + '-' + elemId +'" class="activeElement">' + mode[id].elements[elemId] + '</div>');
 								}
 							}
 						}
@@ -391,6 +390,7 @@ function MainMenu(destId, cache) {
 			$('#activeElementsClear').bind('click', function () {
 				me.binder.clearActiveElements.clickCb.call(this, me);
 			});
+			me.setDrawElementTitle();
 		}
 	};
 	
@@ -426,21 +426,21 @@ function MainMenu(destId, cache) {
 				selectCategoryEntries += ' > ' + selectCategory + '-entries';
 			}
 			$.each(val.entries, function (key, val) {
-				var selected, title;
+				var selected, elem;
 				selected = '';
-				title = 'Element aktivieren';
+				//title = 'Element aktivieren';
 				if ((me.images.draw !== undefined) && 
 						(me.images.draw[data.main.activeMode + '-' + val.id] !== undefined) &&
 						me.images.draw[data.main.activeMode + '-' + val.id]) {
 					selected = ' ' + me.cssActive;
-					title = 'Element auswählen';
+					//title = 'Element auswählen';
 					$('<div id="selectEye-' + data.main.activeMode + '-' + val.id 
 							+ '" class="selectEye"></div>').appendTo(selectCategoryEntries)
 							.bind('click', function () {
 								me.binder.showDrawElementInfo.clickCb.call(this, me);
 							});
 				}
-				$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + selected + '" title="' + title + '">' + val.name + '</div>').appendTo(selectCategoryEntries)
+				$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + selected + /*'" title="' + title +*/ '">' + val.name + '</div>').appendTo(selectCategoryEntries)
 				.bind('click', function () {
 					me.binder.drawElement.clickCb.call(this, me);
 				});
@@ -453,6 +453,7 @@ function MainMenu(destId, cache) {
 				}
 			});
 		});
+		me.setDrawElementTitle();
 	};
 	
 	/**
@@ -529,6 +530,22 @@ function MainMenu(destId, cache) {
 				});
 			}
 		});
+	}
+	
+	/**
+	 * 
+	 */
+	this.setDrawElementTitle = function () {
+		$('.drawElement.' + me.cssActive).attr('title', "Element deaktivieren");
+		$('.drawElement:not(.' + me.cssActive + ')').attr('title', "Element aktivieren");
+		
+		$('.activeElement.' + me.cssSelected).attr('title', "kein Effekt");
+		$('.activeElement:not(.' + me.cssSelected + ')').attr('title', "Info anzeigen");
+
+		$('.selectEye.' + me.cssSelected).attr('title', "kein Effekt");
+		$('.selectEye:not(.' + me.cssSelected + ')').attr('title', "Info anzeigen");
+		
+		$('.clearElement').attr('title', "Element deaktivieren");
 	}
 	
 	/**

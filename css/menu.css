@@ -23,7 +23,7 @@
 	cursor: pointer;
 }
 
-.tab.active {
+.tab.selected {
 	z-index: 2;
 }
 
@@ -123,21 +123,21 @@
 	margin-left: 10px;
 }
 
-.mainMenu * .drawElement {
+.mainMenu * .drawElement, .mainMenu * .activeElement {
 	text-indent: -10px;
 	margin-left: 10px;
 	cursor: pointer;
 }
 
-.mainMenu * .drawElement:hover {
+.mainMenu * .drawElement:hover, .mainMenu * .activeElement:hover {
 	color: #550000;
 }
 
-.mainMenu * .drawElement.active, .mainMenu * .drawElement.selected {
+.mainMenu * .drawElement.active, .mainMenu * .activeElement.selected {
 	color: #990000;
 }
 
-.mainMenu * .drawElement.active:hover, .mainMenu * .drawElement.selected:hover {
+.mainMenu * .drawElement.active:hover, .mainMenu * .activeElement.selected:hover {
 	color: #CC0000;
 }
 

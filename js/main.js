@@ -41,7 +41,6 @@ $(document).ready(function() {
 			$(this).prev('.selectEye').remove();
 			draw = false;
 			showInfo = false;
-			$(this).attr('title', 'Element aktivieren');
 		}
 		else {
 			$(this).addClass(me.cssActive);
@@ -52,7 +51,6 @@ $(document).ready(function() {
 					});
 			draw = true;
 			showInfo = true;
-			$(this).attr('title', 'Element deaktivieren');
 		}
 
 		if (showInfo) {
@@ -69,15 +67,14 @@ $(document).ready(function() {
 				map.loadImage(data, map.drawImageToCanvas, draw);
 			});
 		}
+		me.setDrawElementTitle();
 	});
 	// is executed when clicked on an active element in the free mode main menu
 	mainMenu.setEventBinderActiveElement('click', function (me) {
 		var idElems, element;
 		if (!$(this).hasClass(me.cssSelected)) {
 			$('[id|="activeElement"].' + me.cssSelected).removeClass(me.cssSelected);
-			$('[id|="activeElement"]').attr('title', 'Element auswählen');
 			$(this).addClass(me.cssSelected);
-			$(this).attr('title', 'kein Effekt');
 
 			idElem = $(this).attr('id').split('-');
 			element = [];
@@ -88,6 +85,7 @@ $(document).ready(function() {
 			// show element info in info menu
 			infoMenu.drawContent.call(infoMenu,element.id, element.modeId);
 		}
+		me.setDrawElementTitle();
 	});
 	// is executed when clicked on a clear active element in the free mode main menu
 	mainMenu.setEventBinderClearActiveElement('click', function (me) {
@@ -130,6 +128,7 @@ $(document).ready(function() {
 			$(this).addClass(me.cssSelected);
 			infoMenu.drawContent.call(infoMenu, element.id, element.modeId);
 		}
+		me.setDrawElementTitle();
 	});
 	// is executed when clicked on an eye to hide/show a menu
 	mainMenu.setEventBinderToggleMenu('click', function () {
