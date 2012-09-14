@@ -23,14 +23,31 @@ $(document).ready(function() {
 	mainMenu = new MainMenu('menu-main', cache);
 	// is executed when clicked on a draw element in a main menu list
 	mainMenu.setEventBinderDrawElement('click', function (selfObj) {
-		var url, idElem, draw, element;
-		if ($(this).hasClass(selfObj.cssSelected)) {
+		var url, idElem, draw, showInfo, element, isActive;
+		isActive = $(this).hasClass(selfObj.cssActive);
+		$('[id|="drawElement"].' + selfObj.cssActive).attr('title', 'Element auswählen');
+		$('[id|="drawElement"]').removeClass(selfObj.cssActive);
+		if ($(this).hasClass(selfObj.cssSelected) && isActive) {
+			// active and selected -> remove element
 			$(this).removeClass(selfObj.cssSelected);
 			draw = false;
+			showInfo = false;
+			$(this).attr('title', 'Element aktivieren');
 		}
-		else {
+		else if (!$(this).hasClass(selfObj.cssSelected) && !isActive) {
+			// not active and not selected -> add element
 			$(this).addClass(selfObj.cssSelected);
+			$(this).addClass(selfObj.cssActive);
 			draw = true;
+			showInfo = true;
+			$(this).attr('title', 'Element deaktivieren');
+		}
+		else if ($(this).hasClass(selfObj.cssSelected)) {
+			// selected but not active -> make it active
+			$(this).addClass(selfObj.cssActive);
+			draw = null;
+			showInfo = true;
+			$(this).attr('title', 'Element deaktivieren');
 		}
 		
 		idElem = $(this).attr('id').split('-');
@@ -38,12 +55,32 @@ $(document).ready(function() {
 		element.id = idElem[2];
 		element.name = $(this).text();
 		element.modeId = idElem[1];
-		selfObj.handleActiveElements.call(selfObj, element.id, element.name, element.modeId, draw);
-
-		url = "php/ajax/getJson.php?j=imgById&id=" + element.id;
-		$.getJSON(url, function (data) {
-			map.loadImage(data, map.drawImageToCanvas, draw);
-		});
+		if (showInfo) {
+			// show element info in info menu
+		}
+		if (draw != null) {
+			selfObj.handleActiveElements.call(selfObj, element.id, element.name, element.modeId, draw);
+			url = "php/ajax/getJson.php?j=imgById&id=" + element.id;
+			$.getJSON(url, function (data) {
+				map.loadImage(data, map.drawImageToCanvas, draw);
+			});
+		}
+	});
+	// is executed when clicked on an active element in the free mode main menu
+	mainMenu.setEventBinderActiveElement('click', function () {
+		var idElems, element;
+		$('[id|="activeElement"].' + selfObj.cssActive).removeClass(selfObj.cssActive);
+		$('[id|="activeElement"]').attr('title', 'Element auswählen');
+		$(this).addClass(selfObj.cssActive);
+		$(this).attr('title', 'kein Effekt');
+		
+		idElem = $(this).attr('id').split('-');
+		element = [];
+		element.id = idElem[2];
+		element.name = $(this).text();
+		element.modeId = idElem[1];
+		
+		// show element info in info menu
 	});
 	// is executed when clicked on a clear active element in the free mode main menu
 	mainMenu.setEventBinderClearActiveElement('click', function (selfObj) {

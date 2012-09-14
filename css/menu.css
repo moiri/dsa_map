@@ -133,12 +133,20 @@
 	color:#550000;
 }
 
-.mainMenu * .drawElement.selected {
+.mainMenu * .drawElement.selected.active, .mainMenu * .drawElement.active {
 	color:#990000;
 }
 
-.mainMenu * .drawElement.selected:hover {
+.mainMenu * .drawElement.selected.active:hover, .mainMenu * .drawElement.active:hover {
 	color:#CC0000;
+}
+
+.mainMenu * .drawElement.selected {
+	color:#000099;
+}
+
+.mainMenu * .drawElement.selected:hover {
+	color:#0000CC;
 }
 
 .mainMenu * .clearElement {

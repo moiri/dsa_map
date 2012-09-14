@@ -6,6 +6,7 @@ function Menu() {
 	me.mode;
 	me.eyeWidth = 22;
 	me.cssSelected = 'selected';
+	me.cssActive = 'active';
 	me.binder = [];
 	me.binder.toggleMenu = [];
 	me.binder.toggleMenu.clickCb = function () {
@@ -107,6 +108,10 @@ function MainMenu(destId, cache) {
 	me.destId = destId;
 	me.images = cache.images;
 	me.activeElems = cache.activeElems;
+	me.binder.activeElement = [];
+	me.binder.activeElement.clickCb = function () {
+		alert('no activeElement click event binded, use "setEventBinderActiveElement" to define the event');
+	};
 	me.binder.clearActiveElement = [];
 	me.binder.clearActiveElement.clickCb = function () {
 		alert('no clearActiveElement click event binded, use "setEventBinderClearActiveElement" to define the event');
@@ -337,7 +342,7 @@ function MainMenu(destId, cache) {
 		$(selectContent).html('');
 		if (selfObj.activeElems.counter > 0) {
 			$(selectContent).append('<div id="free-category-active" class="categoryTitle"></div>');
-			$('#free-category-active').append('<div id="activeElementsClear" class="clearElement"></div>')
+			$('#free-category-active').append('<div id="activeElementsClear" class="clearElement" title="Alle Elemente deaktivieren"></div>')
 			$('#free-category-active').append('<div class="categoryEye open"></div>');
 			$('#free-category-active').append('<div class="categoryTitleText">Aktive Elemente</div>');
 			$(selectContent).append('<div id="free-category-active-entries" class="category"></div>');
@@ -358,8 +363,8 @@ function MainMenu(destId, cache) {
 							//mode[id].elements.sort();
 							for (elemId in mode[id].elements) {
 								if (mode[id].elements.hasOwnProperty(elemId)) {
-									$('#activeMode-' + id + '-entries').append('<div id="activeElementClear-' + id + '-' + elemId +'" class="clearElement"></div>')
-									.append('<div id="activeElement-' + id + '-' + elemId +'" class="drawElement">' + mode[id].elements[elemId] + '</div>');
+									$('#activeMode-' + id + '-entries').append('<div id="activeElementClear-' + id + '-' + elemId +'" class="clearElement" title="Element deaktivieren"></div>')
+									.append('<div id="activeElement-' + id + '-' + elemId +'" class="drawElement" title="Element auswählen">' + mode[id].elements[elemId] + '</div>');
 									$()
 								}
 							}
@@ -373,6 +378,10 @@ function MainMenu(destId, cache) {
 
 			selector = '#free-category-active-entries';
 			drawActiveElements(selfObj.activeElems.mode, selector);
+			$('[id|="activeElement"]').unbind('click');
+			$('[id|="activeElement"]').bind('click', function () {
+				selfObj.binder.activeElement.clickCb.call(this, me);
+			});
 			$('[id|="activeElementClear"]').unbind('click');
 			$('[id|="activeElementClear"]').bind('click', function () {
 				selfObj.binder.clearActiveElement.clickCb.call(this, me);
@@ -418,14 +427,16 @@ function MainMenu(destId, cache) {
 				selectCategoryEntries += ' > ' + selectCategory + '-entries';
 			}
 			$.each(val.entries, function (key, val) {
-				var selected;
+				var selected, title;
 				selected = '';
+				title = 'Element aktivieren';
 				if ((selfObj.images.draw !== undefined) && 
 						(selfObj.images.draw[data.main.activeMode + '-' + val.id] !== undefined) &&
 						selfObj.images.draw[data.main.activeMode + '-' + val.id]) {
-					selected = ' selected';
+					selected = ' ' + selfObj.cssSelected;
+					title = 'Element auswählen';
 				}
-				$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + selected + '">' + val.name + '</div>').appendTo(selectCategoryEntries)
+				$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + selected + '" title="' + title + '">' + val.name + '</div>').appendTo(selectCategoryEntries)
 				.bind('click', function () {
 					selfObj.binder.drawElement.clickCb.call(this, me);
 				});
@@ -516,6 +527,22 @@ function MainMenu(destId, cache) {
 			}
 		});
 	}
+	
+	/**
+	 * Setter to bind an event on activeElements (id-refix: activeElement).
+	 * This is used if the binded function must acces other objects than mainMenu
+	 * 
+	 * @param string eStr: string to define the event
+	 * @param function cb: callback function to be evoked when event occures
+	 */
+	this.setEventBinderActiveElement = function (eStr, cb) {
+		if (eStr === 'click') {
+			me.binder.activeElement.clickCb = cb;
+		}
+		else {
+			alert('setEventBinderActiveElement: bad eStr');
+		}
+	};
 	
 	/**
 	 * Setter to bind an event on clearActiveElements (id-refix: activeElementClear).
