@@ -539,10 +539,12 @@ function MainMenu(destId, cache) {
 		$('.drawElement.' + me.cssActive).attr('title', "Element deaktivieren");
 		$('.drawElement:not(.' + me.cssActive + ')').attr('title', "Element aktivieren");
 		
-		$('.activeElement.' + me.cssSelected).attr('title', "kein Effekt");
+		//$('.activeElement.' + me.cssSelected).attr('title', "kein Effekt");
+		$('.activeElement.' + me.cssSelected).removeAttr('title');
 		$('.activeElement:not(.' + me.cssSelected + ')').attr('title', "Info anzeigen");
 
-		$('.selectEye.' + me.cssSelected).attr('title', "kein Effekt");
+		//$('.selectEye.' + me.cssSelected).attr('title', "kein Effekt");
+		$('.selectEye.' + me.cssSelected).removeAttr('title');
 		$('.selectEye:not(.' + me.cssSelected + ')').attr('title', "Info anzeigen");
 		
 		$('.clearElement').attr('title', "Element deaktivieren");
