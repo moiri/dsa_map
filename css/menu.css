@@ -123,10 +123,16 @@
 	margin-left: 10px;
 }
 
+.mainMenu * .drawElementCont, .mainMenu * .activeElementCont {
+	overflow: auto;
+	width: 100%;
+}
+
 .mainMenu * .drawElement, .mainMenu * .activeElement {
 	text-indent: -10px;
 	margin-left: 10px;
 	cursor: pointer;
+	float: left;
 }
 
 .mainMenu * .drawElement:hover, .mainMenu * .activeElement:hover {
@@ -141,23 +147,6 @@
 	color: #CC0000;
 }
 
-/*
-.mainMenu * .drawElement.selected.active, .mainMenu * .drawElement.active {
-	color:#990000;
-}
-
-.mainMenu * .drawElement.selected.active:hover, .mainMenu * .drawElement.active:hover {
-	color:#CC0000;
-}
-
-.mainMenu * .drawElement.selected {
-	color:#000099;
-}
-
-.mainMenu * .drawElement.selected:hover {
-	color:#0000CC;
-}
-*/
 .mainMenu * .clearElement,.mainMenu * .selectEye {
 	cursor: pointer;
 	float: right;
@@ -180,8 +169,13 @@
 	background-image: url("../img/icon/eye_shut.png");
 }
 
-.mainMenu * .selectEye.selected {
+.mainMenu * .selectEye:hover {
+	background-image: url("../img/icon/eye_shut_hov.png");
+}
+
+.mainMenu * .selectEye.selected, .mainMenu * .selectEye.selected:hover {
 	background-image: url("../img/icon/eye_open.png");
+	cursor: default;
 }
 
 .mainMenu * .clearElement:hover {

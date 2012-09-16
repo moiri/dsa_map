@@ -310,7 +310,7 @@ function MainMenu(destId, cache) {
 			me.setMode(lastId, function () {
 				me.drawContent();
 			});
-			
+
 			me.binder.mode.clickCb.call(this, me);
 		});
 
@@ -334,7 +334,7 @@ function MainMenu(destId, cache) {
 		me.bindEye(me.destId, eyeAttr, midAttr);
 		cb();
 	};
-	
+
 	/**
 	 * draws the content of the free mode menu
 	 */
@@ -364,7 +364,9 @@ function MainMenu(destId, cache) {
 							//mode[id].elements.sort();
 							for (elemId in mode[id].elements) {
 								if (mode[id].elements.hasOwnProperty(elemId)) {
-									$('#activeMode-' + id + '-entries').append('<div id="activeElementClear-' + id + '-' + elemId +'" class="clearElement"></div>')
+									$('<div class="activeElementCont"></div>')
+									.appendTo('#activeMode-' + id + '-entries')
+									.append('<div id="activeElementClear-' + id + '-' + elemId +'" class="clearElement"></div>')
 									.append('<div id="activeElement-' + id + '-' + elemId +'" class="activeElement">' + mode[id].elements[elemId] + '</div>');
 								}
 							}
@@ -393,7 +395,7 @@ function MainMenu(destId, cache) {
 			me.setDrawElementTitle();
 		}
 	};
-	
+
 	/**
 	 * draws the content of menus showing element lists (not free mode)
 	 * 
@@ -426,24 +428,26 @@ function MainMenu(destId, cache) {
 				selectCategoryEntries += ' > ' + selectCategory + '-entries';
 			}
 			$.each(val.entries, function (key, val) {
-				var selected, elem;
-				selected = '';
-				//title = 'Element aktivieren';
+				var active, elem;
+				active = '';
+				elem = $('<div class="drawElementCont"></div>').appendTo(selectCategoryEntries);
 				if ((me.images.draw !== undefined) && 
 						(me.images.draw[data.main.activeMode + '-' + val.id] !== undefined) &&
 						me.images.draw[data.main.activeMode + '-' + val.id]) {
-					selected = ' ' + me.cssActive;
-					//title = 'Element auswählen';
+					// element is active
+					active = ' ' + me.cssActive;
 					$('<div id="selectEye-' + data.main.activeMode + '-' + val.id 
-							+ '" class="selectEye"></div>').appendTo(selectCategoryEntries)
+							+ '" class="selectEye"></div>').appendTo(elem)
 							.bind('click', function () {
 								me.binder.showDrawElementInfo.clickCb.call(this, me);
 							});
 				}
-				$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + selected + /*'" title="' + title +*/ '">' + val.name + '</div>').appendTo(selectCategoryEntries)
-				.bind('click', function () {
-					me.binder.drawElement.clickCb.call(this, me);
-				});
+				$('<div id="drawElement-' + data.main.activeMode + '-' + val.id + '" class="drawElement' + active + '">' 
+						+ val.name + '</div>')
+						.appendTo(elem)
+						.bind('click', function () {
+							me.binder.drawElement.clickCb.call(this, me);
+						});
 
 				if ((activeMode !== undefined) && (activeMode.counter > 0)) {
 					if ((activeMode.elements[val.id] !== undefined) && (activeMode.elements[val.id])) {
@@ -455,7 +459,7 @@ function MainMenu(destId, cache) {
 		});
 		me.setDrawElementTitle();
 	};
-	
+
 	/**
 	 * manages the active elements array (adds and removes items) and the tab css classes
 	 * (adds and removes classes to show if an active element is in the corresponding tab or not)
@@ -516,7 +520,7 @@ function MainMenu(destId, cache) {
 				activeModeArr[i+1].mode = activeModeArr[i].mode[tabModeId].mode;
 			}
 
-			// handle tab css selected class
+			// handle tab css active class
 			for (i = 1; i < tabId.length; i++) {
 				tabModeId = tabId[i];
 				$('[id|="mode-0"][id$="-' + tabModeId + '"]').each(function () {
@@ -531,14 +535,14 @@ function MainMenu(destId, cache) {
 			}
 		});
 	}
-	
+
 	/**
 	 * 
 	 */
 	this.setDrawElementTitle = function () {
 		$('.drawElement.' + me.cssActive).attr('title', "Element deaktivieren");
 		$('.drawElement:not(.' + me.cssActive + ')').attr('title', "Element aktivieren");
-		
+
 		//$('.activeElement.' + me.cssSelected).attr('title', "kein Effekt");
 		$('.activeElement.' + me.cssSelected).removeAttr('title');
 		$('.activeElement:not(.' + me.cssSelected + ')').attr('title', "Info anzeigen");
@@ -546,10 +550,10 @@ function MainMenu(destId, cache) {
 		//$('.selectEye.' + me.cssSelected).attr('title', "kein Effekt");
 		$('.selectEye.' + me.cssSelected).removeAttr('title');
 		$('.selectEye:not(.' + me.cssSelected + ')').attr('title', "Info anzeigen");
-		
+
 		$('.clearElement').attr('title', "Element deaktivieren");
 	}
-	
+
 	/**
 	 * Setter to bind an event on activeElements (id-refix: activeElement).
 	 * This is used if the binded function must acces other objects than mainMenu
@@ -565,7 +569,7 @@ function MainMenu(destId, cache) {
 			alert('setEventBinderActiveElement: bad eStr');
 		}
 	};
-	
+
 	/**
 	 * Setter to bind an event on clearActiveElements (id-refix: activeElementClear).
 	 * This is used if the binded function must acces other objects than mainMenu
@@ -581,7 +585,7 @@ function MainMenu(destId, cache) {
 			alert('setEventBinderClearActiveElement: bad eStr');
 		}
 	};
-	
+
 	/**
 	 * Setter to bind an event on clearActiveElements (id-refix: activeElementsClear).
 	 * This is used if the binded function must acces other objects than mainMenu
@@ -597,7 +601,7 @@ function MainMenu(destId, cache) {
 			alert('setEventBinderClearActiveElements: bad eStr');
 		}
 	};
-	
+
 	/**
 	 * Setter to bind an event on draw elements (id-refix: drawElement).
 	 * This is used if the binded function must acces other objects than mainMenu
@@ -629,7 +633,7 @@ function MainMenu(destId, cache) {
 			alert('setEventBinderMode: bad eStr');
 		}
 	};
-	
+
 	/**
 	 * Setter to bind an event on showDrawElementInfo elements.
 	 * This is used if the binded function must acces other objects than mainMenu
@@ -658,7 +662,7 @@ function InfoMenu(destId) {
 	var me = this;
 	me.destId = destId;
 	me.selectContent = '#' + me.destId + '-content';
-	
+
 	/**
 	 * get menu content with ajax and on success draw it
 	 * 
@@ -722,7 +726,7 @@ function InfoMenu(destId) {
 		me.bindEye(me.destId, eyeAttr, midAttr);
 		cb();
 	};
-	
+
 	/**
 	 * draw info of selected content
 	 * 
@@ -731,7 +735,7 @@ function InfoMenu(destId) {
 	this.drawInfoContent = function (data) {
 		$(me.selectContent).append('<div class="noInfoActive">server error</div>')
 	};
-	
+
 	/**
 	 * draw initial info to menu
 	 */
