@@ -276,7 +276,10 @@ function MainMenu(destId, cache) {
 
 		iteration(data, me.destId, 0, 0, 1);
 		$('#' + destId).append('<div class="contentBox border"></div>');
-		$('#' + me.destId + ' > div.contentBox').append('<input id="menu-main-search" class="search init" type="text" />');
+		$('<div id="menu-main-search" class="searchCont"></div>')
+		.appendTo('#' + me.destId + ' > div.contentBox')
+		.append('<div id="menu-main-search-clear" class="searchClear"></div>')
+		.append('<input id="menu-main-search-form" class="searchForm init" type="text" />');
 		$('#' + me.destId + ' > div.contentBox').append('<div id="menu-main-content" class="content"></div>');
 		me.setMode('13', function () {
 			me.drawContent();
@@ -288,8 +291,8 @@ function MainMenu(destId, cache) {
 			var idElem, i, id, lastId, myId, url;
 			$('[id^="tabCont-"]').hide();
 			$('[id^="mode-"]').removeClass(me.cssSelected);
-			$('#' + me.destId + '-search').val('Suche');
-			$('#' + me.destId + '-search').addClass('init');
+			$('#' + me.destId + '-search-form').val('Suche');
+			$('#' + me.destId + '-search-form').addClass('init');
 
 			idElem = $(this).attr('id').split('-');
 			idElem.shift(); // remove descripter (keep only ids)
@@ -315,17 +318,27 @@ function MainMenu(destId, cache) {
 		});
 
 		// bind search key up events
-		$('#' + me.destId + '-search').unbind('keyup');
-		$('#' + me.destId + '-search').bind('keyup', function () {
+		$('#' + me.destId + '-search-form').unbind('keyup');
+		$('#' + me.destId + '-search-form').bind('keyup', function () {
+			$('#' + me.destId + '-search-clear').show();
 			me.drawContent($(this).val());
 		});
+		
+		// bind search focus out event
+		$('#' + me.destId + '-search-clear').unbind('click');
+		$('#' + me.destId + '-search-clear').bind('click', function () {
+			$(this).hide();
+			$('#' + me.destId + '-search-form').addClass('init');
+			$('#' + me.destId + '-search-form').val('Suche');
+			me.drawContent();
+		});
 
-		// bind search key up events
-		$('#' + me.destId + '-search').unbind('click');
-		$('#' + me.destId + '-search').bind('click', function () {
+		// bind search click events
+		$('#' + me.destId + '-search-form').unbind('click');
+		$('#' + me.destId + '-search-form').bind('click', function () {
 			if ($(this).val() === 'Suche') {
 				$(this).val('');
-				$('#' + me.destId + '-search').removeClass('init');
+				$(this).removeClass('init');
 			}
 		});
 

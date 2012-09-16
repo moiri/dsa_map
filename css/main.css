@@ -16,19 +16,36 @@ body {
 	float:right;
 }
 
-.search {
+.searchCont {
 	display:none;
-	border:none;
 	padding:4px 7px;
 	background-image: url("../img/stripes/hor4.png"), url("../img/stripes/vert4.png");
     background-position: right bottom, left top;
     background-repeat: no-repeat;
-    background-color:#FFFFFF;
 }
 
-.search.init {
+.searchForm {
+	width:150px;
+	border:none;
+	background-color:#FFFFFF;
+}
+
+.searchForm.init {
 	color:#AAAAAA;
 	font-style:italic;
+}
+
+.searchClear {
+	width: 19px;
+	height: 18px;
+	background-image: url("../img/stripes/cross.png");
+	float: right;
+	cursor:pointer;
+	display:none;
+}
+
+.searchClear:hover {
+	background-image: url("../img/stripes/cross_hov.png");
 }
 
 .border {
