@@ -132,7 +132,6 @@
 	text-indent: -10px;
 	margin-left: 10px;
 	cursor: pointer;
-	float: left;
 }
 
 .mainMenu * .drawElement:hover, .mainMenu * .activeElement:hover {
