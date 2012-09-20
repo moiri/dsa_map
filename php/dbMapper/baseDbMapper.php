@@ -155,6 +155,7 @@ class BaseDBMapper {
 
 	/**
 	 * Get rows of a db table by condition
+	 * @deprecated (no injection check)
 	 *
 	 * @param string $sql: query to execute on the db
 	 * @return an array with all rows or false if no entry was selected
