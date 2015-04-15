@@ -1,0 +1,91 @@
+@CHARSET "UTF-8";
+
+body, input, select {
+	font-size:12px;	
+}
+
+.content {
+	position:fixed;
+	left:300px;
+}
+
+#content {
+	float:left;
+}
+
+.element {
+	margin:10px;
+	float:left;
+	height:600px;
+	overflow:auto;
+	width:790px;
+}
+
+.element * .entry, .element > .entry {
+	clear:both;
+	overflow:auto;
+}
+
+.element > .entry, .element > .entrygroup {
+	margin:2px;
+	padding:2px 10px;
+	background-color:#EEEEEE;
+}
+
+.element * .entryTitle {
+	font-weight:bold;
+	float:left;
+	width:200px;
+	min-height:1em;
+	margin:4px 0px;
+}
+
+.element * .entryTitle > .new {
+	color:#008000;
+	cursor:pointer;
+}
+
+.element * .entryTitle > .new:hover {
+	color:#00C000;
+}
+
+.element * .entryContent {
+	float:left;
+}
+
+.element * .entryContent.empty {
+	color:#AAAAAA;
+	font-style:italic;	
+}
+
+.list {
+	margin:10px;
+	padding:10px;
+	border:1px solid #000000;
+	float:left;
+	width:250px;
+}
+
+.list > .entry:hover {
+	color:#CC0000;
+	cursor:pointer;
+}
+
+.list > .entry.done {
+	color:#008000;
+}
+
+.list > .entry.done:hover {
+	color:#00C000;
+}
+
+.msg {
+	margin:10px;
+	padding:10px;
+	float:left;
+	background-color:#111111;
+}
+
+.msg div {
+	color:#EEEEEE;
+}

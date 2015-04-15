@@ -1,0 +1,57 @@
+@CHARSET "UTF-8";
+
+body, input, select {
+	font-size:12px;	
+}
+
+.list {
+	margin:10px;
+	padding:10px;
+}
+
+.content {
+	margin:10px;
+	padding:10px;
+}
+
+.entry {
+	overflow:auto;
+	margin:2px;
+	clear:both;
+}
+
+.entryContent {
+	float:left;
+}
+
+.newElem {
+	color:#008000;
+	cursor:pointer;
+	margin:10px;
+}
+
+.newElem:hover {
+	color:#00C000;
+}
+
+.deleteElem {
+	float:left;
+	color:#CC0000;
+	cursor:pointer;
+	margin:4px;
+}
+
+.deleteElem:hover {
+	color:#FF0000;
+}
+
+.msg {
+	margin:10px;
+	padding:10px;
+	float:left;
+	background-color:#111111;
+}
+
+.msg div {
+	color:#EEEEEE;
+}
