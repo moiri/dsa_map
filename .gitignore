@@ -4,3 +4,4 @@
 *.swp
 *secure
 apache.conf
+.htpasswd

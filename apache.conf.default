@@ -1,14 +1,16 @@
 # dsa_map default apache configuration
 # change ___path___ to the location of the project
 
-Alias /dsa_map ___path___/dsa_map
+Alias /dsa_map ___path___
 
-<Directory "___path___/dsa_map/cms">
+<Directory "___path___">
+    Require all granted
+</Directory>
+
+<Directory "___path___/cms">
+    Options Indexes
     AuthType Basic
     AuthName "Authentication Required"
-    AuthUserFile "/etc/htpasswd/.htpasswd"
+    AuthUserFile "___path___/cms/.htpasswd"
     Require valid-user
-
-    Order allow,deny
-    Allow from all
 </Directory>
